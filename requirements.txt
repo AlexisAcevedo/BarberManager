@@ -1,0 +1,19 @@
+# Barber Manager - Requirements
+# Python 3.12+
+
+# UI Framework
+flet>=0.25.0
+
+# Database ORM
+sqlalchemy>=2.0.0
+
+# Google Calendar Integration (for future use)
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.1.1
+
+# Security & Migrations
+bcrypt>=4.0.0
+cryptography>=41.0.0
+alembic>=1.11.0
