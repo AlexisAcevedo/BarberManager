@@ -125,7 +125,11 @@ Actualiza un servicio existente.
 
 ## AuthService
 
-Autenticación y gestión de usuarios.
+Autenticación, gestión de usuarios y seguridad.
+
+### Rate Limiting
+- **Máximo intentos fallidos:** 5
+- **Duración del bloqueo:** 5 minutos
 
 ### Métodos
 
@@ -139,13 +143,27 @@ Verifica contraseña contra hash.
 
 ---
 
-#### `authenticate(db, username, password) -> Optional[User]`
-Autentica usuario y retorna objeto User si es exitoso.
+#### `authenticate(db, username, password) -> Tuple[Optional[User], Optional[str]]`
+Autentica usuario con protección de rate limiting.
+
+**Retorna:**
+- `(User, None)` si éxito
+- `(None, "mensaje de error")` si falla
 
 ---
 
 #### `create_user(db, username, password, role, barber_id=None)`
 Crea nuevo usuario con contraseña hasheada.
+
+---
+
+#### `change_password(db, user_id, new_password) -> Tuple[bool, Optional[str]]`
+Cambia la contraseña de un usuario y marca `must_change_password=False`.
+
+---
+
+#### `unlock_user(db, username) -> bool`
+Desbloquea manualmente un usuario (para admins).
 
 ---
 

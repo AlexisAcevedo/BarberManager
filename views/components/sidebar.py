@@ -1,35 +1,40 @@
 """
-Sidebar navigation component for Barber Manager.
-Creates a NavigationRail with Spanish labels.
+Componente de navegación lateral para Barber Manager.
+Crea un NavigationRail con etiquetas en español y botón de logout.
 """
 import asyncio
-import inspect
 import flet as ft
-from typing import Callable, Union
+from typing import Callable, Optional
 
 
 def create_sidebar(
     page: ft.Page,
     selected_index: int,
-    on_change: Callable[[int], None]
-) -> ft.NavigationRail:
+    on_change: Callable[[int], None],
+    on_logout: Optional[Callable[[], None]] = None
+) -> ft.Column:
     """
-    Create the main navigation sidebar.
+    Crea el sidebar de navegación principal con botón de logout.
     
     Args:
-        page: Flet page instance
-        selected_index: Currently selected destination index
-        on_change: Callback when selection changes (sync or async)
+        page: Instancia de página Flet
+        selected_index: Índice de destino actualmente seleccionado
+        on_change: Callback cuando cambia la selección (sync o async)
+        on_logout: Callback cuando el usuario cierra sesión
         
-    Returns:
-        NavigationRail component
+    Retorna:
+        Column con NavigationRail y botón de logout
     """
     
     def handle_change(e: ft.ControlEvent):
         result = on_change(e.control.selected_index)
-        # If the callback returns a coroutine, schedule it
+        # Si el callback retorna una corrutina, programarla
         if asyncio.iscoroutine(result):
             asyncio.create_task(result)
+    
+    def handle_logout(e):
+        if on_logout:
+            on_logout()
     
     rail = ft.NavigationRail(
         selected_index=selected_index,
@@ -37,27 +42,7 @@ def create_sidebar(
         min_width=100,
         min_extended_width=200,
         extended=True,
-        bgcolor=ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-        leading=ft.Container(
-            content=ft.Column(
-                controls=[
-                    ft.Icon(
-                        ft.Icons.CONTENT_CUT,
-                        size=40,
-                        color=ft.Colors.BLUE_400
-                    ),
-                    ft.Text(
-                        "Barber Manager",
-                        size=14,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.BLUE_400
-                    ),
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=5
-            ),
-            padding=ft.padding.only(bottom=20, top=10)
-        ),
+        bgcolor=ft.Colors.TRANSPARENT,
         destinations=[
             ft.NavigationRailDestination(
                 icon=ft.Icons.CALENDAR_MONTH_OUTLINED,
@@ -88,4 +73,50 @@ def create_sidebar(
         on_change=handle_change,
     )
     
-    return rail
+    # Header con logo
+    header = ft.Container(
+        content=ft.Column(
+            controls=[
+                ft.Icon(
+                    ft.Icons.CONTENT_CUT,
+                    size=40,
+                    color=ft.Colors.BLUE_400
+                ),
+                ft.Text(
+                    "Barber Manager",
+                    size=14,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLUE_400
+                ),
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=5
+        ),
+        padding=ft.padding.only(bottom=20, top=10)
+    )
+    
+    # Botón de logout
+    logout_button = ft.Container(
+        content=ft.TextButton(
+            content=ft.Row(
+                controls=[
+                    ft.Icon(ft.Icons.LOGOUT, color=ft.Colors.RED_400, size=20),
+                    ft.Text("Cerrar Sesión", color=ft.Colors.RED_400, size=12),
+                ],
+                spacing=8,
+            ),
+            on_click=handle_logout,
+        ),
+        padding=ft.padding.only(bottom=20, left=10, right=10),
+    )
+    
+    # Contenedor completo del sidebar
+    return ft.Column(
+        controls=[
+            header,
+            ft.Container(content=rail, expand=True),
+            logout_button,
+        ],
+        expand=True,
+        spacing=0,
+    )

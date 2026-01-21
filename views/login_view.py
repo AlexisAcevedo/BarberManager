@@ -42,19 +42,29 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
             return
             
         with get_db() as db:
-            user = AuthService.authenticate(db, username, password)
+            user, error_msg = AuthService.authenticate(db, username, password)
             if user:
-                # Save session data using page.data for Flet 0.80.x
+                # Extraer datos del usuario DENTRO de la sesión para evitar DetachedInstanceError
+                user_data = {
+                    "id": user.id,
+                    "username": user.username,
+                    "role": user.role,
+                    "barber_id": user.barber_id,
+                    "must_change_password": getattr(user, 'must_change_password', False)
+                }
+                
+                # Guardar datos de sesión usando page.data para Flet 0.80.x
                 if not hasattr(page, 'data') or page.data is None:
                     page.data = {}
-                page.data["user_id"] = user.id
-                page.data["username"] = user.username
-                page.data["role"] = user.role
-                page.data["barber_id"] = user.barber_id
+                page.data["user_id"] = user_data["id"]
+                page.data["username"] = user_data["username"]
+                page.data["role"] = user_data["role"]
+                page.data["barber_id"] = user_data["barber_id"]
                 
-                on_login_success(user)
+                # Pasar diccionario en lugar de objeto ORM
+                on_login_success(user_data)
             else:
-                error_text.value = "Credenciales inválidas"
+                error_text.value = error_msg or "Credenciales inválidas"
                 error_text.visible = True
                 page.update()
 

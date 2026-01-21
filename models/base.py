@@ -43,6 +43,7 @@ class User(Base):
     """
     Entidad Usuario para autenticación.
     Vinculado a un Barbero (o puede ser un admin).
+    Incluye campos para rate limiting de login.
     """
     __tablename__ = "users"
     
@@ -52,6 +53,13 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(20), default="barber")  # admin, barber
     barber_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("barbers.id"), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    
+    # Campos para rate limiting
+    failed_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    locked_until: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    
+    # Campo para forzar cambio de contraseña
+    must_change_password: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # Relaciones
     barber: Mapped[Optional["Barber"]] = relationship("Barber", back_populates="user")

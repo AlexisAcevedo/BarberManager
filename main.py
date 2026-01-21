@@ -6,6 +6,7 @@ Construida con Flet (UI) y SQLAlchemy (ORM) usando arquitectura MVC.
 """
 import flet as ft
 
+from config import logger
 from database import init_db
 from views.components.sidebar import create_sidebar
 from views.agenda_view import create_agenda_view
@@ -15,6 +16,7 @@ from views.reports_view import create_reports_view
 from views.services_view import create_services_view
 from views.settings_view import create_settings_view
 from views.login_view import create_login_view
+from views.change_password_view import create_change_password_view
 
 async def main(page: ft.Page):
     """
@@ -53,24 +55,54 @@ async def main(page: ft.Page):
         base_route = route.split("?")[0]
         return route_map.get(base_route, 0)
 
-    # Crear sidebar
-    sidebar = create_sidebar(page=page, selected_index=0, on_change=navigate_to_index)
+    def on_logout():
+        """
+        Callback ejecutado cuando el usuario cierra sesión.
+        Limpia los datos de sesión y redirige al login.
+        """
+        logger.info("Usuario cerró sesión")
+        if hasattr(page, 'data') and page.data is not None:
+            page.data.clear()
+        sidebar_container.visible = False
+        divider.visible = False
+        content_area.content = create_login_view(page, on_login_success)
+        page.update()
+
+    # Crear sidebar con callback de logout
+    sidebar = create_sidebar(page=page, selected_index=0, on_change=navigate_to_index, on_logout=on_logout)
     sidebar_container.content = sidebar
 
-    def on_login_success(user):
+    def on_login_success(user_data):
         """
         Callback ejecutado cuando el login es exitoso.
-        Guarda los datos de sesión y muestra la vista principal.
+        Recibe user_data como diccionario para evitar DetachedInstanceError.
         """
         # Usar page.data para el estado de sesión (compatible con Flet 0.80.x)
         if not hasattr(page, 'data') or page.data is None:
             page.data = {}
-        page.data["user_id"] = user.id
+        page.data["user_id"] = user_data["id"]
         page.data["is_logged_in"] = True
-        page.data["barber_id"] = user.barber_id
+        page.data["barber_id"] = user_data["barber_id"]
+        
+        # Verificar si debe cambiar contraseña
+        if user_data.get("must_change_password", False):
+            content_area.content = create_change_password_view(page, user_data, on_password_changed)
+            page.update()
+            return
+        
         sidebar_container.visible = True
         divider.visible = True
-        # Cargar directamente la vista de agenda
+        content_area.content = create_agenda_view(page)
+        page.update()
+    
+    def on_password_changed(user_data):
+        """
+        Callback ejecutado cuando el usuario cambia su contraseña.
+        """
+        username = user_data.get("username", user_data.get("id", "desconocido"))
+        logger.info(f"Usuario {username} completó cambio de contraseña")
+        sidebar_container.visible = True
+        divider.visible = True
         content_area.content = create_agenda_view(page)
         page.update()
 
@@ -123,8 +155,9 @@ async def main(page: ft.Page):
             
             page.update()
         except Exception as ex:
-            # Manejar errores silenciosamente
-            pass
+            logger.error(f"Error en cambio de ruta: {ex}")
+            import traceback
+            logger.debug(traceback.format_exc())
 
     async def view_pop(e: ft.ViewPopEvent):
         """Maneja el evento de retroceso de navegación."""

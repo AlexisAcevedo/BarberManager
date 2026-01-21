@@ -30,6 +30,9 @@ Usuarios del sistema para autenticación.
 | `role` | VARCHAR(20) | DEFAULT 'barber' | Rol: admin, barber |
 | `barber_id` | INTEGER | FK → barbers.id | Barbero asociado |
 | `is_active` | BOOLEAN | DEFAULT TRUE | Estado activo/inactivo |
+| `failed_attempts` | INTEGER | DEFAULT 0 | Intentos de login fallidos |
+| `locked_until` | DATETIME | NULLABLE | Fecha hasta bloqueo |
+| `must_change_password` | BOOLEAN | DEFAULT TRUE | Forzar cambio de contraseña |
 
 ---
 

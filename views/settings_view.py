@@ -155,7 +155,7 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                             ref=start_dropdown_ref,
                             value=f"{start_hour:02d}:00",
                             options=[ft.dropdown.Option(f"{h:02d}:00") for h in range(6, 16)],
-                            width=100
+                            width=120
                         )
                     ]),
                     ft.Row(controls=[
@@ -164,7 +164,7 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                             ref=end_dropdown_ref,
                             value=f"{end_hour:02d}:00",
                             options=[ft.dropdown.Option(f"{h:02d}:00") for h in range(14, 24)],
-                            width=100
+                            width=120
                         )
                     ]),
                     ft.Container(height=10),

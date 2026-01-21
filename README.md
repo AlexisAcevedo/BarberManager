@@ -14,7 +14,10 @@ Sistema de gestión de turnos para barberías. Aplicación de escritorio constru
 - 📊 **Reportes y arqueo de caja** diario y por período
 - 👨‍💼 **Multi-barbero** con asignación de turnos
 - 🔔 **Notificaciones WhatsApp** para recordatorios
-- 🔐 **Autenticación** con hash bcrypt
+- 🔐 **Autenticación segura** con hash bcrypt
+- 🛡️ **Rate limiting** - bloqueo tras 5 intentos fallidos
+- 🔄 **Cambio de contraseña obligatorio** en primer login
+- 🚪 **Cierre de sesión** desde el sidebar
 
 ## 🚀 Instalación
 
@@ -46,6 +49,8 @@ python main.py
 ### Credenciales por defecto
 - **Usuario:** `admin`
 - **Contraseña:** `admin`
+
+> ⚠️ En el primer login se te pedirá cambiar la contraseña por seguridad.
 
 ### Navegación
 - **Agenda:** Vista principal con calendario semanal
