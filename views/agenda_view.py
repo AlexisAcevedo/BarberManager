@@ -42,8 +42,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
         for b in db_barbers:
             barbers.append({"id": b.id, "name": b.name, "color": b.color})
             
-    if not selected_barber_id and barbers:
-        selected_barber_id = barbers[0]["id"]
+    # selected_barber_id = None significa "todos los barberos"
+    # No forzamos selección por defecto, mostramos todos
     
     # Refs for dynamic updates
     weekly_panel_ref = ft.Ref[ft.Container]()
@@ -83,8 +83,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
         selected_date = d
         refresh()
 
-    def select_barber(barber_id: int):
-        """Select a specific barber."""
+    def select_barber(barber_id):
+        """Select a specific barber or None for all."""
         nonlocal selected_barber_id
         selected_barber_id = barber_id
         refresh()
@@ -285,7 +285,22 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
             alignment=ft.MainAxisAlignment.START
         )
         
-        barber_chips = []
+        # Chip "Todos" al inicio
+        is_all_selected = selected_barber_id is None
+        barber_chips = [
+            ft.Container(
+                content=ft.Row([
+                    ft.Icon(ft.Icons.PEOPLE, size=14, color=ft.Colors.WHITE if is_all_selected else ft.Colors.GREY_400),
+                    ft.Text("Todos", size=12, color=ft.Colors.WHITE if is_all_selected else ft.Colors.GREY_400)
+                ], spacing=5),
+                padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                border_radius=20,
+                bgcolor=ft.Colors.BLUE_700 if is_all_selected else ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+                border=ft.border.all(1, ft.Colors.BLUE_400) if is_all_selected else None,
+                on_click=lambda e: select_barber(None),
+            )
+        ]
+        
         for b in barbers:
             is_sel = b["id"] == selected_barber_id
             barber_chips.append(
@@ -337,6 +352,9 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
             "confirmed": "Confirmado",
             "cancelled": "Cancelado"
         }
+        
+        # Obtener color del barbero
+        barber_color = slot.get("barber_color", "#2196F3")
         
         return ft.Container(
             content=ft.Row(
@@ -422,7 +440,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
             ),
             padding=10,
             border_radius=8,
-            bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE)
+            bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+            border=ft.border.only(left=ft.border.BorderSide(4, barber_color))
         )
     
     def build_free_slot_card(slot: dict) -> ft.Control:

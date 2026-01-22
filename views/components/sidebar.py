@@ -55,6 +55,11 @@ def create_sidebar(
                 label="Clientes",
             ),
             ft.NavigationRailDestination(
+                icon=ft.Icons.PERSON_OUTLINED,
+                selected_icon=ft.Icons.PERSON,
+                label="Barberos",
+            ),
+            ft.NavigationRailDestination(
                 icon=ft.Icons.ANALYTICS_OUTLINED,
                 selected_icon=ft.Icons.ANALYTICS,
                 label="Reportes",

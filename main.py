@@ -6,7 +6,7 @@ Construida con Flet (UI) y SQLAlchemy (ORM) usando arquitectura MVC.
 """
 import flet as ft
 
-from config import logger
+from config import logger, AppConfig
 from database import init_db
 from views.components.sidebar import create_sidebar
 from views.agenda_view import create_agenda_view
@@ -45,13 +45,13 @@ async def main(page: ft.Page):
 
     async def navigate_to_index(index: int):
         """Navega a la ruta correspondiente según el índice del menú."""
-        routes = ["/", "/clients", "/reports", "/services", "/settings"]
+        routes = ["/", "/clients", "/barbers", "/reports", "/services", "/settings"]
         if 0 <= index < len(routes):
             await page.push_route(routes[index])
 
     def get_selected_index(route: str) -> int:
         """Obtiene el índice del menú según la ruta actual."""
-        route_map = {"/": 0, "/clients": 1, "/reports": 2, "/services": 3, "/settings": 4}
+        route_map = {"/": 0, "/clients": 1, "/barbers": 2, "/reports": 3, "/services": 4, "/settings": 5}
         base_route = route.split("?")[0]
         return route_map.get(base_route, 0)
 
@@ -143,6 +143,9 @@ async def main(page: ft.Page):
                 content_area.content = create_new_appointment_view(page, query_params)
             elif route == "/clients":
                 content_area.content = create_clients_view(page)
+            elif route == "/barbers":
+                from views.barbers_view import create_barbers_view
+                content_area.content = create_barbers_view(page)
             elif route == "/reports":
                 content_area.content = create_reports_view(page)
             elif route == "/services":
