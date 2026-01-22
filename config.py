@@ -10,14 +10,14 @@ from typing import Optional
 class BusinessConfig:
     """Configuración de lógica de negocio."""
     
-    # Horario de trabajo (formato 24h)
-    HOURS_START: int = 12  # 12:00 PM
-    HOURS_END: int = 20    # 8:00 PM
+    # NOTA: Los horarios de trabajo (HOURS_START, HOURS_END) ahora se gestionan
+    # dinámicamente desde la base de datos vía SettingsService.get_business_hours()
+    # Esto permite cambiarlos desde la UI sin modificar código.
     
-    # Intervalos de turnos
+    # Intervalos de turnos (minutos)
     SLOT_DURATION_MINUTES: int = 15
     
-    # Duraciones de servicios por defecto
+    # Duraciones de servicios por defecto (minutos)
     DEFAULT_CORTE_DURATION: int = 30
     DEFAULT_BARBA_DURATION: int = 15
     DEFAULT_COMBO_DURATION: int = 40

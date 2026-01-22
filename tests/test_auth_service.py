@@ -19,16 +19,20 @@ def test_create_user(db_session, sample_barber):
 
 def test_authenticate_success(db_session, sample_user):
     """Test successful authentication."""
-    user = AuthService.authenticate(db_session, "testuser", "testpassword")
+    user, error = AuthService.authenticate(db_session, "testuser", "testpassword")
+    assert error is None
     assert user is not None
     assert user.id == sample_user.id
 
 def test_authenticate_fail_wrong_password(db_session, sample_user):
     """Test failed authentication due to wrong password."""
-    user = AuthService.authenticate(db_session, "testuser", "wrongpass")
+    user, error = AuthService.authenticate(db_session, "testuser", "wrongpass")
     assert user is None
+    assert error is not None
+    assert "Credenciales inválidas" in error
 
 def test_authenticate_fail_nonexistent_user(db_session):
     """Test failed authentication for non-existent user."""
-    user = AuthService.authenticate(db_session, "ghost", "anypass")
+    user, error = AuthService.authenticate(db_session, "ghost", "anypass")
     assert user is None
+    assert error == "Credenciales inválidas"

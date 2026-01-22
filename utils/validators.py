@@ -8,8 +8,10 @@ from datetime import datetime, date
 
 
 # Patrones de expresiones regulares
+# Email pattern - RFC 5322 simplificado
+# Previene: dominios con puntos consecutivos, guiones al inicio/fin
 EMAIL_PATTERN = re.compile(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    r'^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$'
 )
 
 # Patrón de teléfono: permite dígitos, espacios, guiones, paréntesis y prefijo +

@@ -2,6 +2,7 @@
 Servicio de clientes para Barber Manager.
 Maneja operaciones CRUD de clientes y funcionalidad de búsqueda.
 """
+import re
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session
@@ -62,7 +63,16 @@ class ClientService:
         if not search_term:
             return []
         
+        # Sanitizar entrada para prevenir inyección SQL
+        from utils.validators import sanitize_string
+        search_term = sanitize_string(search_term)
+        if not search_term:
+            return []
+        
+        # Escapar caracteres especiales de SQL LIKE
+        search_term = re.sub(r'[%_\\]', '', search_term)
         search_pattern = f"%{search_term}%"
+        
         return (
             db.query(Client)
             .filter(

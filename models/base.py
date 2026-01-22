@@ -7,7 +7,7 @@ from typing import Optional, List
 
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, 
-    Text, DateTime, ForeignKey, create_engine
+    Text, DateTime, ForeignKey, create_engine, Index
 )
 from sqlalchemy.orm import DeclarativeBase, relationship, Mapped, mapped_column
 
@@ -89,6 +89,12 @@ class Client(Base):
         "Appointment", back_populates="client", cascade="all, delete-orphan"
     )
     
+    # Índices para optimizar búsquedas
+    __table_args__ = (
+        Index('idx_client_name', 'name'),
+        Index('idx_client_phone', 'phone'),
+    )
+    
     def __repr__(self) -> str:
         return f"<Client(id={self.id}, name='{self.name}', email='{self.email}')>"
 
@@ -149,6 +155,13 @@ class Appointment(Base):
     client: Mapped["Client"] = relationship("Client", back_populates="appointments")
     service: Mapped["Service"] = relationship("Service", back_populates="appointments")
     barber: Mapped["Barber"] = relationship("Barber", back_populates="appointments")
+    
+    # Índices para optimizar consultas por fecha y barbero
+    __table_args__ = (
+        Index('idx_appointment_start_time', 'start_time'),
+        Index('idx_appointment_barber_date', 'barber_id', 'start_time'),
+        Index('idx_appointment_status', 'status'),
+    )
     
     def __repr__(self) -> str:
         return (

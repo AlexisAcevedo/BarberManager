@@ -154,10 +154,23 @@ async def main(page: ft.Page):
                 return
             
             page.update()
+        except (ValueError, KeyError, AttributeError) as ex:
+            # Errores esperados de navegación (rutas inválidas, datos faltantes)
+            logger.error(f"Error de navegación: {ex}")
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text("Error al cargar la página"),
+                bgcolor=ft.Colors.RED_700
+            )
+            page.snack_bar.open = True
+            page.update()
         except Exception as ex:
-            logger.error(f"Error en cambio de ruta: {ex}")
+            # Errores inesperados - registrar y re-lanzar para debugging
+            logger.exception("Error inesperado en route_change")
             import traceback
             logger.debug(traceback.format_exc())
+            # Re-lanzar en desarrollo, mostrar mensaje genérico en producción
+            if AppConfig.DEBUG:
+                raise
 
     async def view_pop(e: ft.ViewPopEvent):
         """Maneja el evento de retroceso de navegación."""

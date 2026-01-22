@@ -2,14 +2,22 @@
 Configuración y gestión de sesiones de base de datos para Barber Manager.
 Maneja la conexión SQLite, fábrica de sesiones e inicialización de datos semilla.
 """
+import os
+import logging
 from contextlib import contextmanager
 from typing import Generator
 
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from models.base import Base, Service, Settings, Barber, User
-from config import DatabaseConfig, logger
+from config import DatabaseConfig
+
+# Cargar variables de entorno desde .env
+load_dotenv()
+
+logger = logging.getLogger("barber_manager.database")
 
 # Crear engine con optimizaciones para SQLite
 engine = create_engine(
@@ -99,8 +107,20 @@ def _seed_services() -> None:
 def _seed_auth() -> None:
     """
     Puebla Barbero y usuario Admin por defecto si están vacíos.
+    REQUIERE: Variable de entorno ADMIN_PASSWORD configurada.
     """
+    import os
     from services.auth_service import AuthService
+    
+    # Obtener contraseña admin de variable de entorno
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    if not admin_password:
+        raise ValueError(
+            "ADMIN_PASSWORD no está configurada en el archivo .env\n"
+            "Por seguridad, debes establecer una contraseña segura para el usuario admin.\n"
+            "Copia .env.example a .env y configura ADMIN_PASSWORD."
+        )
+    
     with get_db() as db:
         # 1. Crear Barbero por defecto si no existe ninguno
         if db.query(Barber).count() == 0:
@@ -116,17 +136,54 @@ def _seed_auth() -> None:
             AuthService.create_user(
                 db, 
                 username="admin", 
-                password="admin", 
+                password=admin_password, 
                 role="admin",
                 barber_id=default_barber.id
             )
-            logger.info("Datos semilla: Usuario admin creado (admin/admin)")
+            logger.info("Datos semilla: Usuario admin creado con contraseña desde .env")
 
 
 def reset_db() -> None:
     """
     Reinicia la base de datos eliminando todas las tablas y recreándolas.
     ¡ADVERTENCIA: Esto eliminará todos los datos!
+    
+    SOLO PARA DESARROLLO: Esta función está deshabilitada en producción.
+    Requiere confirmación interactiva para prevenir pérdida accidental de datos.
     """
+    import os
+    
+    # Verificar que no estamos en producción
+    environment = os.getenv("ENVIRONMENT", "development")
+    if environment == "production":
+        raise RuntimeError(
+            "reset_db() está deshabilitado en producción por seguridad.\n"
+            "Si realmente necesitas resetear la base de datos en producción,\n"
+            "hazlo manualmente eliminando el archivo .db"
+        )
+    
+    # Requiere confirmación explícita
+    print("\n" + "="*60)
+    print("⚠️  ADVERTENCIA: OPERACIÓN DESTRUCTIVA")
+    print("="*60)
+    print("Estás a punto de ELIMINAR TODOS LOS DATOS de la base de datos.")
+    print("Esto incluye: clientes, turnos, servicios, usuarios, etc.")
+    print("Esta acción NO SE PUEDE DESHACER.")
+    print("="*60)
+    
+    confirmation = input("\nEscribe 'CONFIRMAR' para continuar: ")
+    
+    if confirmation != "CONFIRMAR":
+        print("❌ Operación cancelada. No se eliminaron datos.")
+        return
+    
+    # Confirmación adicional
+    final_check = input("¿Estás ABSOLUTAMENTE seguro? (sí/no): ")
+    if final_check.lower() != "sí":
+        print("❌ Operación cancelada. No se eliminaron datos.")
+        return
+    
+    logger.warning("Usuario confirmó reset de base de datos")
     Base.metadata.drop_all(bind=engine)
     init_db()
+    print("✅ Base de datos reseteada exitosamente.")

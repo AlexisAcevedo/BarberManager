@@ -17,3 +17,6 @@ google-auth-httplib2>=0.1.1
 bcrypt==4.1.2
 cryptography>=41.0.0
 alembic==1.13.1
+
+# Environment Variables
+python-dotenv>=1.0.0
