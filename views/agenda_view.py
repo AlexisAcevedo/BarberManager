@@ -222,7 +222,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                             str(day_date.day),
                             size=20,
                             weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.BLUE_400 if is_today else None
+                            color="#10B981" if is_today else None
                         ),
                         ft.Container(
                             content=ft.Text(
@@ -238,8 +238,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ),
                 padding=15,
                 border_radius=10,
-                bgcolor=ft.Colors.BLUE_900 if is_selected else ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
-                border=ft.border.all(2, ft.Colors.BLUE_400) if is_today else None,
+                bgcolor="#065F46" if is_selected else ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+                border=ft.border.all(2, "#10B981") if is_today else None,
                 on_click=lambda e, d=day_date: select_date(d),
                 ink=True
             )
@@ -277,7 +277,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                     icon=ft.Icons.TODAY,
                     on_click=go_to_today,
                     style=ft.ButtonStyle(
-                        bgcolor=ft.Colors.BLUE_700,
+                        bgcolor="#10B981",
                         color=ft.Colors.WHITE
                     )
                 )
@@ -295,8 +295,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ], spacing=5),
                 padding=ft.padding.symmetric(horizontal=12, vertical=8),
                 border_radius=20,
-                bgcolor=ft.Colors.BLUE_700 if is_all_selected else ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-                border=ft.border.all(1, ft.Colors.BLUE_400) if is_all_selected else None,
+                bgcolor="#10B981" if is_all_selected else ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+                border=ft.border.all(1, "#10B981") if is_all_selected else None,
                 on_click=lambda e: select_barber(None),
             )
         ]
@@ -320,7 +320,10 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
         return ft.Column(
             controls=[
                 ft.Row([
-                    ft.Text("📅 Agenda Semanal", size=24, weight=ft.FontWeight.BOLD),
+                    ft.Row([
+                        ft.Icon(ft.Icons.CALENDAR_MONTH, color="#10B981", size=28),
+                        ft.Text("Agenda Semanal", size=24, weight=ft.FontWeight.BOLD),
+                    ], spacing=10),
                     ft.Container(expand=True),
                     ft.Row(controls=barber_chips, spacing=10)
                 ]),
@@ -468,20 +471,20 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                     ft.Text(
                         "Disponible - Click para Agendar",
                         size=12,
-                        color=ft.Colors.GREEN_400,
+                        color="#10B981",
                         italic=True,
                         expand=True
                     ),
                     ft.Icon(
                         ft.Icons.ADD,
-                        color=ft.Colors.GREEN_400,
+                        color="#10B981",
                         size=20
                     )
                 ]
             ),
             padding=10,
             border_radius=8,
-            bgcolor=ft.Colors.with_opacity(0.03, ft.Colors.GREEN),
+            bgcolor=ft.Colors.with_opacity(0.05, "#10B981"),
             on_click=lambda e, t=slot["time"]: new_appointment_at_time(t),
             ink=True
         )
@@ -530,15 +533,19 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
             controls=[
                 ft.Row(
                     controls=[
-                        ft.Text(
-                            "📋 Detalle del Día",
-                            size=20,
-                            weight=ft.FontWeight.BOLD
+                        ft.Row([
+                            ft.Icon(ft.Icons.EVENT_NOTE, color="#10B981", size=24),
+                            ft.Text(
+                                "Detalle del Día",
+                                size=20,
+                                weight=ft.FontWeight.BOLD
+                            ),
+                        ], spacing=8
                         ),
                         ft.Container(expand=True),
                         ft.IconButton(
                             icon=ft.Icons.ADD_CIRCLE,
-                            icon_color=ft.Colors.GREEN_400,
+                            icon_color="#10B981",
                             icon_size=30,
                             tooltip="Nuevo Turno",
                             on_click=new_appointment

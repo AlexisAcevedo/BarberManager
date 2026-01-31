@@ -85,13 +85,13 @@ def create_sidebar(
                 ft.Icon(
                     ft.Icons.CONTENT_CUT,
                     size=40,
-                    color=ft.Colors.BLUE_400
+                    color="#10B981"
                 ),
                 ft.Text(
                     "Barber Manager",
                     size=14,
                     weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.BLUE_400
+                    color="#10B981"
                 ),
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,

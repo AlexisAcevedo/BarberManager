@@ -15,7 +15,7 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
         label="Usuario",
         prefix_icon=ft.Icons.PERSON,
         border_color=ft.Colors.GREY_700,
-        focused_border_color=ft.Colors.BLUE_400,
+        focused_border_color="#10B981",
         on_submit=lambda _: password_field.focus()
     )
     
@@ -25,7 +25,7 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
         password=True,
         can_reveal_password=True,
         border_color=ft.Colors.GREY_700,
-        focused_border_color=ft.Colors.BLUE_400,
+        focused_border_color="#10B981",
         on_submit=lambda _: do_login(None)
     )
     
@@ -73,7 +73,7 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
         width=300,
         height=50,
         style=ft.ButtonStyle(
-            bgcolor=ft.Colors.BLUE_700,
+            bgcolor="#10B981",
             color=ft.Colors.WHITE,
             shape=ft.RoundedRectangleBorder(radius=8)
         ),
@@ -83,7 +83,7 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
     return ft.Container(
         content=ft.Column(
             controls=[
-                ft.Icon(ft.Icons.PASSWORD_ROUNDED, size=80, color=ft.Colors.BLUE_400),
+                ft.Icon(ft.Icons.CONTENT_CUT, size=80, color="#10B981"),
                 ft.Text("Barber Manager Pro", size=32, weight=ft.FontWeight.BOLD),
                 ft.Text("Identifícate para continuar", color=ft.Colors.GREY_500),
                 ft.Container(height=20),
