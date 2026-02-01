@@ -5,6 +5,7 @@ Crea un NavigationRail con etiquetas en español y botón de logout.
 import asyncio
 import flet as ft
 from typing import Callable, Optional
+from utils.theme import AppTheme
 
 
 def create_sidebar(
@@ -81,6 +82,8 @@ def create_sidebar(
             ),
         ],
         on_change=handle_change,
+
+
     )
     
     # Header con logo
@@ -90,19 +93,21 @@ def create_sidebar(
                 ft.Icon(
                     ft.Icons.CONTENT_CUT,
                     size=40,
-                    color="#10B981"
+                    color=AppTheme.PRIMARY
                 ),
                 ft.Text(
                     "Barber Manager",
                     size=14,
                     weight=ft.FontWeight.BOLD,
-                    color="#10B981"
+                    color=AppTheme.PRIMARY
                 ),
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=5
         ),
-        padding=ft.padding.only(bottom=20, top=10)
+        padding=ft.padding.only(bottom=20, top=20),
+        alignment=ft.Alignment(0, 0),
+        width=200
     )
     
     # Botón de logout
@@ -110,8 +115,8 @@ def create_sidebar(
         content=ft.TextButton(
             content=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.LOGOUT, color=ft.Colors.RED_400, size=20),
-                    ft.Text("Cerrar Sesión", color=ft.Colors.RED_400, size=12),
+                    ft.Icon(ft.Icons.LOGOUT, color=AppTheme.TEXT_ERROR, size=20),
+                    ft.Text("Cerrar Sesión", color=AppTheme.TEXT_ERROR, size=12),
                 ],
                 spacing=8,
             ),
@@ -124,7 +129,11 @@ def create_sidebar(
     return ft.Column(
         controls=[
             header,
-            ft.Container(content=rail, expand=True),
+            ft.Container(
+                content=rail, 
+                expand=True,
+                padding=ft.padding.symmetric(horizontal=10)
+            ),
             logout_button,
         ],
         expand=True,

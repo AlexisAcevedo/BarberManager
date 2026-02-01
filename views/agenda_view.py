@@ -11,6 +11,7 @@ from models.base import Barber
 from services.appointment_service import AppointmentService
 from services.notification_service import NotificationService
 from services.barber_service import BarberService
+from utils.theme import AppTheme
 
 
 def _get_week_start(d: date) -> date:
@@ -222,7 +223,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                             str(day_date.day),
                             size=20,
                             weight=ft.FontWeight.BOLD,
-                            color="#10B981" if is_today else None
+                            color=AppTheme.PRIMARY if is_today else None
                         ),
                         ft.Container(
                             content=ft.Text(
@@ -238,8 +239,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ),
                 padding=15,
                 border_radius=10,
-                bgcolor="#065F46" if is_selected else ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
-                border=ft.border.all(2, "#10B981") if is_today else None,
+                bgcolor=AppTheme.PRIMARY_DARK if is_selected else ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+                border=ft.border.all(2, AppTheme.PRIMARY) if is_today else None,
                 on_click=lambda e, d=day_date: select_date(d),
                 ink=True
             )
@@ -277,7 +278,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                     icon=ft.Icons.TODAY,
                     on_click=go_to_today,
                     style=ft.ButtonStyle(
-                        bgcolor="#10B981",
+                        bgcolor=AppTheme.PRIMARY,
                         color=ft.Colors.WHITE
                     )
                 )
@@ -295,8 +296,8 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ], spacing=5),
                 padding=ft.padding.symmetric(horizontal=12, vertical=8),
                 border_radius=20,
-                bgcolor="#10B981" if is_all_selected else ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
-                border=ft.border.all(1, "#10B981") if is_all_selected else None,
+                bgcolor=AppTheme.PRIMARY if is_all_selected else ft.Colors.with_opacity(0.05, ft.Colors.WHITE),
+                border=ft.border.all(1, AppTheme.PRIMARY) if is_all_selected else None,
                 on_click=lambda e: select_barber(None),
             )
         ]
@@ -321,7 +322,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
             controls=[
                 ft.Row([
                     ft.Row([
-                        ft.Icon(ft.Icons.CALENDAR_MONTH, color="#10B981", size=28),
+                        ft.Icon(ft.Icons.CALENDAR_MONTH, color=AppTheme.PRIMARY, size=28),
                         ft.Text("Agenda Semanal", size=24, weight=ft.FontWeight.BOLD),
                     ], spacing=10),
                     ft.Container(expand=True),
@@ -477,20 +478,20 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                     ft.Text(
                         "Disponible - Click para Agendar",
                         size=12,
-                        color="#10B981",
+                        color=AppTheme.PRIMARY,
                         italic=True,
                         expand=True
                     ),
                     ft.Icon(
                         ft.Icons.ADD,
-                        color="#10B981",
+                        color=AppTheme.PRIMARY,
                         size=20
                     )
                 ]
             ),
             padding=10,
             border_radius=8,
-            bgcolor=ft.Colors.with_opacity(0.05, "#10B981"),
+            bgcolor=ft.Colors.with_opacity(0.05, AppTheme.PRIMARY),
             on_click=lambda e, t=slot["time"]: new_appointment_at_time(t),
             ink=True
         )
@@ -540,7 +541,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ft.Row(
                     controls=[
                         ft.Row([
-                            ft.Icon(ft.Icons.EVENT_NOTE, color="#10B981", size=24),
+                            ft.Icon(ft.Icons.EVENT_NOTE, color=AppTheme.PRIMARY, size=24),
                             ft.Text(
                                 "Detalle del Día",
                                 size=20,
@@ -551,7 +552,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                         ft.Container(expand=True),
                         ft.IconButton(
                             icon=ft.Icons.ADD_CIRCLE,
-                            icon_color="#10B981",
+                            icon_color=AppTheme.PRIMARY,
                             icon_size=30,
                             tooltip="Nuevo Turno",
                             on_click=new_appointment

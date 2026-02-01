@@ -6,7 +6,9 @@ import flet as ft
 from typing import Optional, List
 
 from database import get_db
+from models.base import Service
 from services.service_service import ServiceService
+from utils.theme import AppTheme
 
 
 def create_services_view(page: ft.Page) -> ft.Control:
@@ -61,7 +63,7 @@ def create_services_view(page: ft.Page) -> ft.Control:
                                             "Activo" if service["is_active"] else "Inactivo",
                                             size=10, color=ft.Colors.WHITE
                                         ),
-                                        bgcolor=ft.Colors.GREEN_700 if service["is_active"] else ft.Colors.GREY_600,
+                                        bgcolor=AppTheme.PRIMARY if service["is_active"] else ft.Colors.GREY_600,
                                         padding=ft.padding.symmetric(horizontal=8, vertical=2),
                                         border_radius=10
                                     )
@@ -86,9 +88,9 @@ def create_services_view(page: ft.Page) -> ft.Control:
                     ),
                     ft.Row(
                         controls=[
-                            ft.IconButton(icon=ft.Icons.EDIT, icon_color=ft.Colors.BLUE_400, tooltip="Editar",
+                            ft.IconButton(icon=ft.Icons.EDIT, icon_color=AppTheme.PRIMARY, tooltip="Editar",
                                          on_click=lambda e, s=service: show_service_dialog(s)),
-                            ft.IconButton(icon=ft.Icons.DELETE, icon_color=ft.Colors.RED_400, tooltip="Eliminar",
+                            ft.IconButton(icon=ft.Icons.DELETE, icon_color=AppTheme.TEXT_ERROR, tooltip="Eliminar",
                                          on_click=lambda e, s=service: confirm_delete(s))
                         ],
                         spacing=0
@@ -120,11 +122,20 @@ def create_services_view(page: ft.Page) -> ft.Control:
         """Show service form dialog."""
         is_edit = service is not None
         
-        name_field = ft.TextField(label="Nombre del servicio", value=service["name"] if service else "", autofocus=True)
-        duration_field = ft.TextField(label="Duración (minutos)", value=str(service["duration"]) if service else "30", keyboard_type=ft.KeyboardType.NUMBER)
-        price_field = ft.TextField(label="Precio", value=str(service["price"]) if service else "0.0", keyboard_type=ft.KeyboardType.NUMBER)
-        active_switch = ft.Switch(label="Servicio activo", value=service["is_active"] if service else True)
-        error_text = ft.Text("", color=ft.Colors.RED_400, visible=False)
+        name_field = ft.TextField(
+            label="Nombre del servicio", value=service["name"] if service else "", autofocus=True,
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        duration_field = ft.TextField(
+            label="Duración (minutos)", value=str(service["duration"]) if service else "30", keyboard_type=ft.KeyboardType.NUMBER,
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        price_field = ft.TextField(
+            label="Precio", value=str(service["price"]) if service else "0.0", keyboard_type=ft.KeyboardType.NUMBER,
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        active_switch = ft.Switch(label="Servicio activo", value=service["is_active"] if service else True, active_color=AppTheme.PRIMARY)
+        error_text = ft.Text("", color=AppTheme.TEXT_ERROR, visible=False)
         
         def close_dialog(e):
             dialog.open = False
@@ -171,9 +182,9 @@ def create_services_view(page: ft.Page) -> ft.Control:
             actions=[
                 ft.TextButton(content=ft.Text("Cancelar"), on_click=close_dialog),
                 ft.ElevatedButton(
-                    content=ft.Text("Guardar"),
+                    content=ft.Text("Guardar", color=AppTheme.BTN_TEXT),
                     on_click=save_service,
-                    style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                    style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                 )
             ]
         )
@@ -228,10 +239,11 @@ def create_services_view(page: ft.Page) -> ft.Control:
                     ft.Text("✂️ Servicios", size=28, weight=ft.FontWeight.BOLD),
                     ft.Container(expand=True),
                     ft.ElevatedButton(
-                        content=ft.Text("Nuevo Servicio"),
+                        content=ft.Text("Nuevo Servicio", color=AppTheme.BTN_TEXT),
                         icon=ft.Icons.ADD,
+                        icon_color=AppTheme.BTN_TEXT,
                         on_click=lambda e: show_service_dialog(None),
-                        style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                        style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                     )
                 ]
             ),

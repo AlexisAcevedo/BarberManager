@@ -12,6 +12,7 @@ from services.appointment_service import AppointmentService
 from services.client_service import ClientService
 from services.service_service import ServiceService
 from models.base import Client, Service, Barber
+from utils.theme import AppTheme
 
 
 def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = None) -> ft.Control:
@@ -134,7 +135,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                                 ft.Text(
                                     client["phone"] or client["email"],
                                     size=12,
-                                    color=ft.Colors.GREY_500
+                                    color=AppTheme.TEXT_SECONDARY
                                 )
                             ],
                             spacing=0,
@@ -155,7 +156,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                 ft.Container(
                     content=ft.Text(
                         "No se encontraron clientes",
-                        color=ft.Colors.GREY_500,
+                        color=AppTheme.TEXT_SECONDARY,
                         italic=True
                     ),
                     padding=10
@@ -177,9 +178,9 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
         selected_client_card_ref.current.content = ft.Row(
             controls=[
                 ft.Container(
-                    content=ft.Icon(ft.Icons.PERSON, color=ft.Colors.GREEN_400),
+                    content=ft.Icon(ft.Icons.PERSON, color=AppTheme.PRIMARY),
                     padding=10,
-                    bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.GREEN),
+                    bgcolor=ft.Colors.with_opacity(0.1, AppTheme.PRIMARY),
                     border_radius=25
                 ),
                 ft.Column(
@@ -201,7 +202,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
         )
         selected_client_card_ref.current.padding = 10
         selected_client_card_ref.current.border_radius = 8
-        selected_client_card_ref.current.bgcolor = ft.Colors.with_opacity(0.1, ft.Colors.GREEN)
+        selected_client_card_ref.current.bgcolor = ft.Colors.with_opacity(0.15, AppTheme.PRIMARY)
         selected_client_card_ref.current.visible = True
         
         update_confirm_button()
@@ -233,11 +234,13 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
         # Update chip styles
         for chip in service_chips_row_ref.current.controls:
             if chip.data == service_id:
-                chip.bgcolor = ft.Colors.BLUE_900
-                chip.border = ft.border.all(2, ft.Colors.BLUE_400)
+                chip.bgcolor = AppTheme.PRIMARY
+                chip.border = ft.border.all(2, AppTheme.PRIMARY)
+                chip.content.controls[1].color = AppTheme.BTN_TEXT
             else:
-                chip.bgcolor = ft.Colors.with_opacity(0.1, ft.Colors.WHITE)
-                chip.border = ft.border.all(1, ft.Colors.GREY_700)
+                chip.bgcolor = ft.Colors.with_opacity(0.05, ft.Colors.WHITE)
+                chip.border = ft.border.all(1, AppTheme.BORDER_DEFAULT)
+                chip.content.controls[1].color = AppTheme.TEXT_SECONDARY
         
         update_time_slots()
         update_confirm_button()
@@ -283,14 +286,14 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                     time_str,
                     size=14,
                     color=ft.Colors.WHITE if (is_available and not is_selected) else 
-                          (ft.Colors.WHITE if is_selected else ft.Colors.GREY_600)
+                          (ft.Colors.WHITE if is_selected else AppTheme.TEXT_SECONDARY)
                 ),
                 padding=ft.padding.symmetric(horizontal=15, vertical=8),
                 border_radius=8,
                 bgcolor=(
-                    ft.Colors.GREEN_700 if is_selected else
-                    ft.Colors.BLUE_800 if is_available else
-                    ft.Colors.with_opacity(0.1, ft.Colors.WHITE)
+                    AppTheme.PRIMARY if is_selected else
+                    ft.Colors.with_opacity(0.3, AppTheme.PRIMARY) if is_available else
+                    ft.Colors.with_opacity(0.05, ft.Colors.WHITE)
                 ),
                 on_click=(
                     (lambda e, t=time_str: select_time(t)) if is_available else None
@@ -322,7 +325,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                 f"Servicio: {selected_service['name']} ({selected_service['duration']} min) • "
                 f"{available_count} horarios disponibles",
                 size=12,
-                color=ft.Colors.GREY_400
+                color=AppTheme.TEXT_SECONDARY
             ),
             ft.Divider(height=10),
             *time_rows
@@ -348,9 +351,9 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                             is_avail = chip.data.get("available")
                             
                             chip.bgcolor = (
-                                ft.Colors.GREEN_700 if is_match else
-                                ft.Colors.BLUE_800 if is_avail else
-                                ft.Colors.with_opacity(0.1, ft.Colors.WHITE)
+                                AppTheme.PRIMARY if is_match else
+                                ft.Colors.with_opacity(0.3, AppTheme.PRIMARY) if is_avail else
+                                ft.Colors.with_opacity(0.05, ft.Colors.WHITE)
                             )
                             # Text color is white for both selected and available states
         
@@ -388,10 +391,10 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
     
     def show_new_client_dialog(e):
         """Show dialog to create a new client."""
-        name_field = ft.TextField(label="Nombre", autofocus=True)
-        email_field = ft.TextField(label="Email")
-        phone_field = ft.TextField(label="Teléfono")
-        error_text = ft.Text("", color=ft.Colors.RED_400, visible=False)
+        name_field = ft.TextField(label="Nombre", autofocus=True, border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS)
+        email_field = ft.TextField(label="Email", border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS)
+        phone_field = ft.TextField(label="Teléfono", border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS)
+        error_text = ft.Text("", color=AppTheme.TEXT_ERROR, visible=False)
         
         def close_dialog(e):
             dialog.open = False
@@ -436,9 +439,9 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
             actions=[
                 ft.TextButton("Cancelar", on_click=close_dialog),
                 ft.ElevatedButton(
-                    content=ft.Text("Guardar"),
+                    content=ft.Text("Guardar", color=AppTheme.BTN_TEXT),
                     on_click=save_client,
-                    style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                    style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                 )
             ]
         )
@@ -457,7 +460,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
             modal=True,
             title=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.ERROR, color=ft.Colors.RED_400),
+                    ft.Icon(ft.Icons.ERROR, color=AppTheme.TEXT_ERROR),
                     ft.Text("Error")
                 ]
             ),
@@ -480,7 +483,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
             modal=True,
             title=ft.Row(
                 controls=[
-                    ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.GREEN_400),
+                    ft.Icon(ft.Icons.CHECK_CIRCLE, color=AppTheme.PRIMARY),
                     ft.Text("¡Turno Creado!")
                 ]
             ),
@@ -490,9 +493,9 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
             ),
             actions=[
                 ft.ElevatedButton(
-                    content=ft.Text("Volver a la Agenda"),
+                    content=ft.Text("Volver a la Agenda", color=AppTheme.BTN_TEXT),
                     on_click=go_to_agenda,
-                    style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                    style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                 )
             ]
         )
@@ -523,7 +526,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
             padding=ft.padding.symmetric(horizontal=20, vertical=10),
             border_radius=10,
             bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
-            border=ft.border.all(1, ft.Colors.GREY_700),
+            border=ft.border.all(1, AppTheme.BORDER_DEFAULT),
             on_click=lambda e, sid=service["id"]: select_service(sid),
             ink=True,
             data=service["id"]
@@ -552,7 +555,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                 ft.Text(
                     format_date(initial_date),
                     size=14,
-                    color=ft.Colors.GREY_400
+                    color=AppTheme.TEXT_SECONDARY
                 ),
                 ft.Divider(height=20),
                 
@@ -562,7 +565,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.Icon(ft.Icons.PERSON, color=ft.Colors.BLUE_400),
+                                    ft.Icon(ft.Icons.PERSON, color=AppTheme.PRIMARY),
                                     ft.Text(
                                         "Paso 1: Seleccionar Cliente",
                                         size=18,
@@ -582,7 +585,9 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                                 hint_text="Escribe para buscar...",
                                 on_change=on_client_search,
                                 border_radius=10,
-                                ref=client_field_ref
+                                ref=client_field_ref,
+                                border_color=AppTheme.BORDER_DEFAULT,
+                                focused_border_color=AppTheme.BORDER_FOCUS
                             ),
                             ft.Column(controls=[], spacing=5, ref=client_results_ref)
                         ]
@@ -599,7 +604,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.Icon(ft.Icons.CUT, color=ft.Colors.BLUE_400),
+                                    ft.Icon(ft.Icons.CUT, color=AppTheme.PRIMARY),
                                     ft.Text(
                                         "Paso 2: Seleccionar Servicio",
                                         size=18,
@@ -617,7 +622,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                             ft.Divider(height=20),
                             ft.Row(
                                 controls=[
-                                    ft.Icon(ft.Icons.PERSON_PIN, color=ft.Colors.BLUE_400),
+                                    ft.Icon(ft.Icons.PERSON_PIN, color=AppTheme.PRIMARY),
                                     ft.Text("Barbero:", weight=ft.FontWeight.W_500),
                                     ft.Row(
                                         controls=[
@@ -647,7 +652,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                         controls=[
                             ft.Row(
                                 controls=[
-                                    ft.Icon(ft.Icons.ACCESS_TIME, color=ft.Colors.BLUE_400),
+                                    ft.Icon(ft.Icons.ACCESS_TIME, color=AppTheme.PRIMARY),
                                     ft.Text(
                                         "Paso 3: Seleccionar Horario",
                                         size=18,
@@ -657,7 +662,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                                     ft.Text(
                                         "Horario: 12:00 - 20:00",
                                         size=12,
-                                        color=ft.Colors.GREY_500
+                                        color=AppTheme.TEXT_SECONDARY
                                     )
                                 ]
                             ),
@@ -667,7 +672,7 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                                     ft.Container(
                                         content=ft.Text(
                                             "Selecciona un servicio primero",
-                                            color=ft.Colors.GREY_500,
+                                            color=AppTheme.TEXT_SECONDARY,
                                             italic=True
                                         ),
                                         alignment=ft.Alignment(0, 0),
@@ -693,8 +698,8 @@ def create_new_appointment_view(page: ft.Page, query_params: Optional[str] = Non
                         height=50,
                         disabled=True,
                         style=ft.ButtonStyle(
-                            bgcolor=ft.Colors.GREEN_700,
-                            color=ft.Colors.WHITE,
+                            bgcolor=AppTheme.PRIMARY,
+                            color=AppTheme.BTN_TEXT,
                             shape=ft.RoundedRectangleBorder(radius=10)
                         ),
                         on_click=confirm_appointment,

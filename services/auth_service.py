@@ -67,6 +67,16 @@ class AuthService:
         
         db.flush()
 
+    @staticmethod
+    def _validate_password(password: str) -> Optional[str]:
+        """
+        Valida que la contraseña cumpla los requisitos de seguridad.
+        Requisito: Mínimo 8 caracteres.
+        """
+        if len(password) < 8:
+            return "La contraseña debe tener al menos 8 caracteres"
+        return None
+
     @classmethod
     def create_user(
         cls, 
@@ -89,6 +99,11 @@ class AuthService:
         Retorna:
             Tupla de (usuario, mensaje_de_error)
         """
+        # Validar contraseña
+        pwd_error = cls._validate_password(password)
+        if pwd_error:
+            return None, pwd_error
+
         # Verificar si el usuario ya existe
         existing = db.query(User).filter(User.username == username).first()
         if existing:
@@ -190,8 +205,10 @@ class AuthService:
         if not user:
             return False, "Usuario no encontrado"
         
-        if len(new_password) < 6:
-            return False, "La contraseña debe tener al menos 6 caracteres"
+        # Validar contraseña
+        pwd_error = cls._validate_password(new_password)
+        if pwd_error:
+            return False, pwd_error
         
         user.password_hash = cls.hash_password(new_password)
         user.must_change_password = False

@@ -6,6 +6,7 @@ import flet as ft
 
 from database import get_db, reset_db
 from services.settings_service import SettingsService
+from utils.theme import AppTheme
 
 
 def create_settings_view(page: ft.Page) -> ft.Control:
@@ -30,7 +31,7 @@ def create_settings_view(page: ft.Page) -> ft.Control:
             content=ft.Column(
                 controls=[
                     ft.Text(title, size=18, weight=ft.FontWeight.W_500),
-                    ft.Text(subtitle, size=12, color=ft.Colors.GREY_500),
+                    ft.Text(subtitle, size=12, color=AppTheme.TEXT_SECONDARY),
                     ft.Container(height=10),
                     *controls
                 ]
@@ -66,7 +67,7 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                 modal=True,
                 title=ft.Row(
                     controls=[
-                        ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.GREEN_400, size=30),
+                        ft.Icon(ft.Icons.CHECK_CIRCLE, color=AppTheme.PRIMARY, size=30),
                         ft.Text("¡Horario Guardado!")
                     ],
                     spacing=10
@@ -78,9 +79,9 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                 ),
                 actions=[
                     ft.ElevatedButton(
-                        content=ft.Text("Aceptar"),
+                        content=ft.Text("Aceptar", color=AppTheme.BTN_TEXT),
                         on_click=close_success,
-                        style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                        style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                     )
                 ]
             )
@@ -97,7 +98,7 @@ def create_settings_view(page: ft.Page) -> ft.Control:
         """Show error message."""
         page.snack_bar = ft.SnackBar(
             content=ft.Text(message),
-            bgcolor=ft.Colors.RED_700
+            bgcolor=AppTheme.TEXT_ERROR
         )
         page.snack_bar.open = True
         page.update()
@@ -113,14 +114,14 @@ def create_settings_view(page: ft.Page) -> ft.Control:
             dialog.open = False
             page.snack_bar = ft.SnackBar(
                 content=ft.Text("Base de datos reiniciada correctamente"),
-                bgcolor=ft.Colors.GREEN_700
+                bgcolor=AppTheme.PRIMARY
             )
             page.snack_bar.open = True
             page.push_route("/")
         
         dialog = ft.AlertDialog(
             modal=True,
-            title=ft.Row(controls=[ft.Icon(ft.Icons.WARNING, color=ft.Colors.RED_400), ft.Text("¡Advertencia!")]),
+            title=ft.Row(controls=[ft.Icon(ft.Icons.WARNING, color=AppTheme.TEXT_ERROR), ft.Text("¡Advertencia!")]),
             content=ft.Text(
                 "Esta acción eliminará TODOS los datos (clientes, turnos, etc.) "
                 "y reiniciará la base de datos con los servicios por defecto.\n\n"
@@ -129,9 +130,9 @@ def create_settings_view(page: ft.Page) -> ft.Control:
             actions=[
                 ft.TextButton("Cancelar", on_click=close_dialog),
                 ft.ElevatedButton(
-                    content=ft.Text("Sí, reiniciar"),
+                    content=ft.Text("Sí, reiniciar", color=AppTheme.BTN_TEXT),
                     on_click=do_reset,
-                    style=ft.ButtonStyle(bgcolor=ft.Colors.RED_700, color=ft.Colors.WHITE)
+                    style=ft.ButtonStyle(bgcolor=AppTheme.TEXT_ERROR, color=AppTheme.BTN_TEXT)
                 )
             ]
         )
@@ -169,10 +170,11 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                     ]),
                     ft.Container(height=10),
                     ft.ElevatedButton(
-                        content=ft.Text("Guardar Horario"),
+                        content=ft.Text("Guardar Horario", color=AppTheme.BTN_TEXT),
                         icon=ft.Icons.SAVE,
+                        icon_color=AppTheme.BTN_TEXT,
                         on_click=save_business_hours,
-                        style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                        style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                     )
                 ]
             ),
@@ -185,10 +187,11 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                     ft.ElevatedButton(
                         content=ft.Text("Conectar Google Calendar"),
                         icon=ft.Icons.LINK,
+                            
                         disabled=True,
                         tooltip="Próximamente"
                     ),
-                    ft.Text("La integración con Google Calendar estará disponible próximamente", size=12, color=ft.Colors.GREY_500, italic=True)
+                    ft.Text("La integración con Google Calendar estará disponible próximamente", size=12, color=AppTheme.TEXT_SECONDARY, italic=True)
                 ]
             ),
             ft.Container(height=20),
@@ -197,12 +200,13 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                 "Base de Datos", "Gestión de datos",
                 [
                     ft.ElevatedButton(
-                        content=ft.Text("Reiniciar Base de Datos"),
+                        content=ft.Text("Reiniciar Base de Datos", color=AppTheme.BTN_TEXT),
                         icon=ft.Icons.REFRESH,
+                        icon_color=AppTheme.BTN_TEXT,
                         on_click=confirm_reset_db,
-                        style=ft.ButtonStyle(bgcolor=ft.Colors.RED_700, color=ft.Colors.WHITE)
+                        style=ft.ButtonStyle(bgcolor=AppTheme.TEXT_ERROR, color=AppTheme.BTN_TEXT)
                     ),
-                    ft.Text("⚠️ Esta acción eliminará todos los datos", size=12, color=ft.Colors.RED_400)
+                    ft.Text("⚠️ Esta acción eliminará todos los datos", size=12, color=AppTheme.TEXT_ERROR)
                 ]
             ),
             ft.Container(height=20),
@@ -211,8 +215,8 @@ def create_settings_view(page: ft.Page) -> ft.Control:
                 "Acerca de", "Información de la aplicación",
                 [
                     ft.Text("Barber Manager v1.0.0", size=14),
-                    ft.Text("Aplicación de gestión para barberías", size=12, color=ft.Colors.GREY_500),
-                    ft.Text("Desarrollado con Flet + SQLAlchemy", size=12, color=ft.Colors.GREY_500)
+                    ft.Text("Aplicación de gestión para barberías", size=12, color=AppTheme.TEXT_SECONDARY),
+                    ft.Text("Desarrollado con Flet + SQLAlchemy", size=12, color=AppTheme.TEXT_SECONDARY)
                 ]
             )
         ],

@@ -8,6 +8,7 @@ from typing import Optional, List
 from database import get_db
 from services.client_service import ClientService
 from models.base import Client
+from utils.theme import AppTheme
 
 
 def create_clients_view(page: ft.Page) -> ft.Control:
@@ -66,15 +67,16 @@ def create_clients_view(page: ft.Page) -> ft.Control:
                         ),
                         width=50,
                         height=50,
-                        bgcolor=ft.Colors.BLUE_700,
+
+                        bgcolor=AppTheme.PRIMARY,
                         border_radius=25,
                         alignment=ft.Alignment(0, 0)
                     ),
                     ft.Column(
                         controls=[
-                            ft.Text(client["name"], size=16, weight=ft.FontWeight.BOLD),
-                            ft.Text(client["email"], size=12, color=ft.Colors.GREY_400),
-                            ft.Text(client["phone"] or "Sin teléfono", size=12, color=ft.Colors.GREY_500)
+                            ft.Text(client["name"], size=16, weight=ft.FontWeight.BOLD, color=AppTheme.TEXT_PRIMARY),
+                            ft.Text(client["email"], size=12, color=AppTheme.TEXT_SECONDARY),
+                            ft.Text(client["phone"] or "Sin teléfono", size=12, color=AppTheme.TEXT_SECONDARY)
                         ],
                         spacing=2,
                         expand=True
@@ -83,13 +85,13 @@ def create_clients_view(page: ft.Page) -> ft.Control:
                         controls=[
                             ft.IconButton(
                                 icon=ft.Icons.EDIT,
-                                icon_color=ft.Colors.BLUE_400,
+                                icon_color=AppTheme.PRIMARY,
                                 tooltip="Editar",
                                 on_click=lambda e, c=client: show_client_dialog(c)
                             ),
                             ft.IconButton(
                                 icon=ft.Icons.DELETE,
-                                icon_color=ft.Colors.RED_400,
+                                icon_color=AppTheme.TEXT_ERROR,
                                 tooltip="Eliminar",
                                 on_click=lambda e, c=client: confirm_delete(c)
                             )
@@ -128,11 +130,23 @@ def create_clients_view(page: ft.Page) -> ft.Control:
         """Show client form dialog."""
         is_edit = client is not None
         
-        name_field = ft.TextField(label="Nombre", value=client["name"] if client else "", autofocus=True)
-        email_field = ft.TextField(label="Email", value=client["email"] if client else "")
-        phone_field = ft.TextField(label="Teléfono", value=client["phone"] if client else "")
-        notes_field = ft.TextField(label="Notas", value=client["notes"] if client else "", multiline=True, min_lines=2, max_lines=4)
-        error_text = ft.Text("", color=ft.Colors.RED_400, visible=False)
+        name_field = ft.TextField(
+            label="Nombre", value=client["name"] if client else "", autofocus=True,
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        email_field = ft.TextField(
+            label="Email", value=client["email"] if client else "",
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        phone_field = ft.TextField(
+            label="Teléfono", value=client["phone"] if client else "",
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        notes_field = ft.TextField(
+            label="Notas", value=client["notes"] if client else "", multiline=True, min_lines=2, max_lines=4,
+            border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
+        )
+        error_text = ft.Text("", color=AppTheme.TEXT_ERROR, visible=False)
         
         def close_dialog(e):
             dialog.open = False
@@ -169,7 +183,11 @@ def create_clients_view(page: ft.Page) -> ft.Control:
             ),
             actions=[
                 ft.TextButton(content=ft.Text("Cancelar"), on_click=close_dialog),
-                ft.ElevatedButton(content=ft.Text("Guardar"), on_click=save_client, style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700))
+                ft.ElevatedButton(
+                    content=ft.Text("Guardar", color=AppTheme.BTN_TEXT), 
+                    on_click=save_client, 
+                    style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY)
+                )
             ]
         )
         
@@ -223,10 +241,11 @@ def create_clients_view(page: ft.Page) -> ft.Control:
                     ft.Text("👥 Clientes", size=28, weight=ft.FontWeight.BOLD),
                     ft.Container(expand=True),
                     ft.ElevatedButton(
-                        content=ft.Text("Nuevo Cliente"),
+                        content=ft.Text("Nuevo Cliente", color=AppTheme.BTN_TEXT),
                         icon=ft.Icons.PERSON_ADD,
+                        icon_color=AppTheme.BTN_TEXT,
                         on_click=lambda e: show_client_dialog(None),
-                        style=ft.ButtonStyle(bgcolor=ft.Colors.GREEN_700, color=ft.Colors.WHITE)
+                        style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
                     )
                 ]
             ),
@@ -234,7 +253,8 @@ def create_clients_view(page: ft.Page) -> ft.Control:
             ft.Row(controls=[
                 ft.TextField(
                     label="Buscar clientes...", prefix_icon=ft.Icons.SEARCH,
-                    on_change=on_search, border_radius=10, expand=True, ref=search_field_ref
+                    on_change=on_search, border_radius=10, expand=True, ref=search_field_ref,
+                    border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS
                 )
             ]),
             ft.Container(height=15),

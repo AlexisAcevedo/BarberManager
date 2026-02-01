@@ -6,6 +6,7 @@ import flet as ft
 from datetime import date, datetime, timedelta
 from database import get_db
 from repositories.appointment_repository import AppointmentRepository
+from utils.theme import AppTheme
 
 appointment_repo = AppointmentRepository()
 
@@ -41,7 +42,7 @@ def create_reports_view(page: ft.Page) -> ft.Control:
             content=ft.Column(
                 controls=[
                     ft.Icon(icon, color=color, size=28),
-                    ft.Text(title, size=13, color=ft.Colors.GREY_400),
+                    ft.Text(title, size=13, color=AppTheme.TEXT_SECONDARY),
                     ft.Text(value, size=26, weight=ft.FontWeight.BOLD),
                     ft.Text(subtitle, size=12, color=color),
                 ],
@@ -72,7 +73,7 @@ def create_reports_view(page: ft.Page) -> ft.Control:
                     str(stats["confirmed"]["count"]),
                     f"${stats['confirmed']['income']:.2f}",
                     ft.Icons.CHECK_CIRCLE, 
-                    ft.Colors.GREEN_400
+                    AppTheme.PRIMARY
                 ),
                 create_stat_card(
                     "⏳ Pendientes", 
@@ -86,7 +87,7 @@ def create_reports_view(page: ft.Page) -> ft.Control:
                     str(stats["cancelled"]["count"]),
                     "Sin recaudación",
                     ft.Icons.CANCEL, 
-                    ft.Colors.RED_400
+                    AppTheme.TEXT_ERROR
                 ),
             ],
             spacing=15
@@ -101,14 +102,14 @@ def create_reports_view(page: ft.Page) -> ft.Control:
                     ft.Text(
                         f"{stats['total']['count']} turnos", 
                         size=16,
-                        color=ft.Colors.GREY_400
+                        color=AppTheme.TEXT_SECONDARY
                     ),
                     ft.Container(expand=True),
                     ft.Text(
                         f"Recaudación real: ${stats['confirmed']['income']:.2f}",
                         size=18,
                         weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.GREEN_400
+                        color=AppTheme.PRIMARY
                     ),
                 ],
                 alignment=ft.MainAxisAlignment.START,
@@ -134,7 +135,7 @@ def create_reports_view(page: ft.Page) -> ft.Control:
             barber_rows = [
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text("Sin turnos confirmados", color=ft.Colors.GREY_500)),
+                        ft.DataCell(ft.Text("Sin turnos confirmados", color=AppTheme.TEXT_SECONDARY)),
                         ft.DataCell(ft.Text("-")),
                         ft.DataCell(ft.Text("-")),
                     ]
@@ -252,14 +253,15 @@ def create_reports_view(page: ft.Page) -> ft.Control:
     # Header with date selector
     header_row = ft.Row(
         controls=[
+
             ft.Text("📊 Reportes", size=24, weight=ft.FontWeight.BOLD),
             ft.Container(expand=True),
-            ft.Text("Ver periodo:", size=13, color=ft.Colors.GREY_400),
+            ft.Text("Ver periodo:", size=13, color=AppTheme.TEXT_SECONDARY),
             ft.Switch(
                 ref=mode_switch,
                 value=False,
                 on_change=on_mode_switch,
-                active_color=ft.Colors.BLUE_400,
+                active_color=AppTheme.PRIMARY,
             ),
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -269,8 +271,8 @@ def create_reports_view(page: ft.Page) -> ft.Control:
     # Daily date selector
     daily_date_row = ft.Row(
         controls=[
-            ft.Icon(ft.Icons.CALENDAR_TODAY, color=ft.Colors.BLUE_400, size=20),
-            ft.Text("Fecha:", color=ft.Colors.GREY_400),
+            ft.Icon(ft.Icons.CALENDAR_TODAY, color=AppTheme.PRIMARY, size=20),
+            ft.Text("Fecha:", color=AppTheme.TEXT_SECONDARY),
             ft.TextButton(
                 content=ft.Text(
                     ref=date_display,
@@ -288,12 +290,12 @@ def create_reports_view(page: ft.Page) -> ft.Control:
         ref=period_row,
         controls=[
             ft.Icon(ft.Icons.DATE_RANGE, color=ft.Colors.ORANGE_400, size=20),
-            ft.Text("Desde:", color=ft.Colors.GREY_400),
+            ft.Text("Desde:", color=AppTheme.TEXT_SECONDARY),
             ft.TextButton(
                 content=ft.Text(ref=period_start_text, value=period_start.strftime("%d/%m/%Y")),
                 on_click=open_period_start_picker,
             ),
-            ft.Text("Hasta:", color=ft.Colors.GREY_400),
+            ft.Text("Hasta:", color=AppTheme.TEXT_SECONDARY),
             ft.TextButton(
                 content=ft.Text(ref=period_end_text, value=period_end.strftime("%d/%m/%Y")),
                 on_click=open_period_end_picker,

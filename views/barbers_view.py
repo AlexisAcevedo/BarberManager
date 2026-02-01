@@ -5,6 +5,7 @@ Permite crear, editar y desactivar barberos.
 import flet as ft
 from database import get_db
 from services.barber_service import BarberService
+from utils.theme import AppTheme
 
 
 def create_barbers_view(page: ft.Page) -> ft.Control:
@@ -66,7 +67,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.WHITE
                     ),
-                    bgcolor=ft.Colors.RED_700,
+                    bgcolor=AppTheme.TEXT_ERROR,
                     padding=5,
                     border_radius=5
                 )
@@ -90,7 +91,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
                                 f"📅 {stats['total_appointments']} citas | "
                                 f"✅ {stats['completed']} | ❌ {stats['cancelled']}",
                                 size=12,
-                                color=ft.Colors.GREY_600
+                                color=AppTheme.TEXT_SECONDARY
                             ),
                         ],
                         spacing=5,
@@ -107,7 +108,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
                             ft.IconButton(
                                 icon=ft.Icons.POWER_SETTINGS_NEW,
                                 tooltip="Desactivar" if barber.is_active else "Activar",
-                                icon_color=ft.Colors.RED_700 if barber.is_active else ft.Colors.GREEN_700,
+                                icon_color=AppTheme.TEXT_ERROR if barber.is_active else AppTheme.PRIMARY,
                                 on_click=lambda e, b=barber: toggle_barber_status(b)
                             ),
                         ],
@@ -126,15 +127,19 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
         name_field = ft.TextField(
             label="Nombre del barbero",
             hint_text="Ej: Juan Pérez",
-            autofocus=True
+            autofocus=True,
+            border_color=AppTheme.BORDER_DEFAULT,
+            focused_border_color=AppTheme.BORDER_FOCUS
         )
         
         color_field = ft.TextField(
             label="Color (formato #RRGGBB)",
-            value="#2196F3"
+            value="#2196F3",
+            border_color=AppTheme.BORDER_DEFAULT,
+            focused_border_color=AppTheme.BORDER_FOCUS
         )
         
-        error_text = ft.Text(color=ft.Colors.RED_700, visible=False)
+        error_text = ft.Text(color=AppTheme.TEXT_ERROR, visible=False)
         
         def close_dialog():
             dialog.open = False
@@ -163,7 +168,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
             content=ft.Column([name_field, color_field, error_text], tight=True, width=350),
             actions=[
                 ft.TextButton("Cancelar", on_click=lambda e: close_dialog()),
-                ft.ElevatedButton("Crear", on_click=do_create)
+                ft.ElevatedButton("Crear", on_click=do_create, style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT))
             ]
         )
         
@@ -173,9 +178,9 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
     
     def show_edit_dialog(barber):
         """Muestra el diálogo para editar un barbero."""
-        name_field = ft.TextField(label="Nombre", value=barber.name)
-        color_field = ft.TextField(label="Color", value=barber.color)
-        error_text = ft.Text(color=ft.Colors.RED_700, visible=False)
+        name_field = ft.TextField(label="Nombre", value=barber.name, border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS)
+        color_field = ft.TextField(label="Color", value=barber.color, border_color=AppTheme.BORDER_DEFAULT, focused_border_color=AppTheme.BORDER_FOCUS)
+        error_text = ft.Text(color=AppTheme.TEXT_ERROR, visible=False)
         
         def close_dialog():
             dialog.open = False
@@ -201,7 +206,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
             content=ft.Column([name_field, color_field, error_text], tight=True, width=350),
             actions=[
                 ft.TextButton("Cancelar", on_click=lambda e: close_dialog()),
-                ft.ElevatedButton("Guardar", on_click=do_update)
+                ft.ElevatedButton("Guardar", on_click=do_update, style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT))
             ]
         )
         
@@ -234,7 +239,7 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
             content=ft.Text(f"¿{action.capitalize()} a '{barber.name}'?"),
             actions=[
                 ft.TextButton("Cancelar", on_click=lambda e: close_dialog()),
-                ft.ElevatedButton(action.capitalize(), on_click=do_toggle)
+                ft.ElevatedButton(action.capitalize(), on_click=do_toggle, style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY if not barber.is_active else AppTheme.TEXT_ERROR, color=AppTheme.BTN_TEXT))
             ]
         )
         
@@ -257,7 +262,12 @@ def create_barbers_view(page: ft.Page) -> ft.Control:
                 ft.IconButton(icon=ft.Icons.REFRESH, tooltip="Actualizar", on_click=lambda e: load_barbers())
             ]),
             ft.Divider(height=10),
-            ft.ElevatedButton("➕ Nuevo Barbero", icon=ft.Icons.ADD, on_click=lambda e: show_create_dialog()),
+            ft.ElevatedButton(
+                "➕ Nuevo Barbero", 
+                icon=ft.Icons.ADD, 
+                on_click=lambda e: show_create_dialog(),
+                style=ft.ButtonStyle(bgcolor=AppTheme.PRIMARY, color=AppTheme.BTN_TEXT)
+            ),
             ft.Container(height=10),
             barbers_list
         ],
