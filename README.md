@@ -284,6 +284,7 @@ barberia/
     ├── base_de_datos.md             # Esquema de base de datos
     ├── api_interna.md               # API de servicios
     ├── guia_desarrollo.md           # Guía para desarrolladores
+    ├── guia_despliegue.md           # Guía de despliegue en producción
     ├── testing.md                   # Estrategia de testing
     └── seguridad.md                 # Aspectos de seguridad
 ```

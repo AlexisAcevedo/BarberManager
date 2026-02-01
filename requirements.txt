@@ -3,9 +3,11 @@
 
 # UI Framework
 flet==0.80.1
+# NOTA: El usuario tenía 0.80.1 instalada, se mantiene para evitar conflictos.
+# Si hay errores, considerar upgrade a latest.
 
 # Database ORM
-sqlalchemy==2.0.25
+sqlalchemy>=2.0.46
 
 # Google Calendar Integration (for future use)
 google-api-python-client>=2.100.0
