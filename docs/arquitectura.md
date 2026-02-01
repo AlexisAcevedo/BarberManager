@@ -99,7 +99,18 @@ graph TB
     Login --> AuthService
     Reports --> ApptService
     Reports --> BarberService
+    Reports --> ApptService
+    Reports --> BarberService
     Settings --> SettingsService
+    CalendarSettings[CalendarSettingsView] --> SettingsService
+    CalendarSettings --> GoogleCalendarService
+    
+    subgraph External["☁️ Servicios Externos"]
+        GCalAPI[Google Calendar API]
+    end
+    
+    GoogleCalendarService --> GCalAPI
+    ApptService --> GoogleCalendarService
     
     ApptService --> ApptRepo
     ClientService --> BaseRepo
@@ -310,6 +321,14 @@ Esta capa es el **corazón de la aplicación**, encapsula todas las reglas de ne
 - Gestión de configuración key-value en DB
 - Horarios de atención (`business_hours_start`, `business_hours_end`)
 - Parámetros configurables del sistema
+
+##### 📅 GoogleCalendarService
+
+**Responsabilidades**:
+- Autenticación OAuth 2.0 con Google
+- Gestión de tokens y credenciales
+- Sincronización de eventos (Crear, Actualizar, Eliminar)
+- Mapeo entre appointments locales y eventos remotos
 
 ---
 

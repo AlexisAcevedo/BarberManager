@@ -23,23 +23,7 @@ class SettingsService:
     Proporciona operaciones get/set para configuración clave-valor.
     """
     
-    @classmethod
-    def get_setting(cls, db: Session, key: str) -> Optional[str]:
-        """
-        Obtiene el valor de una configuración por clave.
-        
-        Args:
-            db: Sesión de base de datos
-            key: Clave de la configuración
-            
-        Retorna:
-            Valor de la configuración o None si no se encuentra
-        """
-        setting = db.query(Settings).filter(Settings.key == key).first()
-        if setting:
-            return setting.value
-        return DEFAULT_SETTINGS.get(key)
-    
+
     @classmethod
     def set_setting(cls, db: Session, key: str, value: str) -> None:
         """
@@ -85,3 +69,35 @@ class SettingsService:
         """
         cls.set_setting(db, "business_hours_start", str(start_hour))
         cls.set_setting(db, "business_hours_end", str(end_hour))
+    
+    @classmethod
+    def get_setting(cls, db: Session, key: str, default: str = None) -> Optional[str]:
+        """
+        Obtiene el valor de una configuración por clave con soporte para default explícito.
+        """
+        setting = db.query(Settings).filter(Settings.key == key).first()
+        if setting:
+            return setting.value
+        return DEFAULT_SETTINGS.get(key, default)
+
+    @classmethod
+    def is_google_calendar_enabled(cls, db: Session) -> bool:
+        """Check if Google Calendar sync is enabled."""
+        val = cls.get_setting(db, "google_calendar_enabled", "false")
+        return val.lower() == "true"
+        
+    @classmethod
+    def set_google_calendar_enabled(cls, db: Session, enabled: bool) -> None:
+        """Set Google Calendar sync status."""
+        cls.set_setting(db, "google_calendar_enabled", "true" if enabled else "false")
+        
+    @classmethod
+    def get_google_calendar_id(cls, db: Session) -> str:
+        """Get the target Google Calendar ID."""
+        return cls.get_setting(db, "google_calendar_id", "primary")
+        
+    @classmethod
+    def set_google_calendar_id(cls, db: Session, calendar_id: str) -> None:
+        """Set the target Google Calendar ID."""
+        cls.set_setting(db, "google_calendar_id", calendar_id)
+

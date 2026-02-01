@@ -11,8 +11,10 @@ from database import get_db
 from models.base import Appointment, Service, Client
 from services.settings_service import SettingsService
 from repositories.appointment_repository import AppointmentRepository
+from services.google_calendar_service import GoogleCalendarService
 
 appointment_repo = AppointmentRepository()
+google_calendar_service = GoogleCalendarService()
 
 
 class AppointmentService:
@@ -226,8 +228,8 @@ class AppointmentService:
         db.flush()  # Get the ID without committing
         
         # Sync to Google Calendar
-        if sync_to_google:
-            google_event_id = cls.sync_to_google(appointment, client, service)
+        if sync_to_google and cls._is_sync_enabled(db):
+            google_event_id = cls.sync_to_google(db, appointment, client, service)
             if google_event_id:
                 appointment.google_event_id = google_event_id
         
@@ -262,7 +264,16 @@ class AppointmentService:
         if not appointment:
             return None, "Turno no encontrado"
         
+        old_status = appointment.status
         appointment.status = new_status
+        
+        # Sync update to Google Calendar if status changed
+        if old_status != new_status and cls._is_sync_enabled(db):
+            # If confirmed or cancelled, update the event
+            # Note: We might want to remove from calendar if cancelled, or just update title/status
+            # Strategy: Update event title/color based on status
+            cls.sync_appointment_update(db, appointment)
+            
         return appointment, None
     
     @classmethod
@@ -290,10 +301,31 @@ class AppointmentService:
         Returns:
             Tuple of (success, error_message)
         """
-        return appointment_repo.delete(db, appointment_id)
+        # First get the appointment to get the google_event_id
+        appointment = cls.get_appointment_by_id(db, appointment_id)
+        if not appointment:
+            return False, "Turno no encontrado"
+            
+        google_event_id = appointment.google_event_id
+        
+        # Delete from local DB
+        success = appointment_repo.delete(db, appointment_id)
+        
+        # If successful locally, delete from Google Calendar
+        if success and google_event_id and cls._is_sync_enabled(db):
+            cls.sync_appointment_delete(db, google_event_id)
+            
+        return success, None if success else "Error al eliminar el turno"
     
-    @staticmethod
+    @classmethod
+    def _is_sync_enabled(cls, db: Session) -> bool:
+        """Check if Google Calendar sync is enabled."""
+        return SettingsService.get_setting(db, "google_calendar_enabled", "false").lower() == "true"
+        
+    @classmethod
     def sync_to_google(
+        cls,
+        db: Session,
         appointment: Appointment,
         client: Client,
         service: Service
@@ -301,10 +333,8 @@ class AppointmentService:
         """
         Sync appointment to Google Calendar.
         
-        This is a placeholder method that simulates the Google Calendar API call.
-        In production, this would use google-api-python-client.
-        
         Args:
+            db: Database session
             appointment: The appointment to sync
             client: The client associated with the appointment
             service: The service for the appointment
@@ -312,23 +342,91 @@ class AppointmentService:
         Returns:
             Google event ID if successful, None otherwise
         """
-        # Placeholder: Print sync information to console
-        print("=" * 50)
-        print("📅 GOOGLE CALENDAR SYNC (Placeholder)")
-        print("=" * 50)
-        print(f"  Client: {client.name} ({client.email})")
-        print(f"  Service: {service.name} ({service.duration} min)")
-        print(f"  Start: {appointment.start_time.strftime('%Y-%m-%d %H:%M')}")
-        print(f"  End: {appointment.end_time.strftime('%Y-%m-%d %H:%M')}")
-        print(f"  Status: {appointment.status}")
-        print("=" * 50)
+        calendar_id = SettingsService.get_setting(db, "google_calendar_id", "primary")
         
-        # Generate a mock event ID
-        mock_event_id = f"google_event_{appointment.id}_{int(datetime.now().timestamp())}"
-        print(f"  ✓ Mock Event ID: {mock_event_id}")
-        print()
+        # Construct event data
+        summary = f"{client.name} - {service.name}"
+        description = (
+            f"Servicio: {service.name} ({service.duration} min)\n"
+            f"Cliente: {client.name}\n"
+            f"Teléfono: {client.phone}\n"
+            f"Notas: {client.notes or ''}"
+        )
         
-        return mock_event_id
+        event_data = {
+            'summary': summary,
+            'description': description,
+            'start': {
+                'dateTime': appointment.start_time.isoformat(),
+                'timeZone': 'America/Argentina/Buenos_Aires', # Should probably be configurable
+            },
+            'end': {
+                'dateTime': appointment.end_time.isoformat(),
+                'timeZone': 'America/Argentina/Buenos_Aires',
+            },
+            # Add colorId based on barber if needed, or status
+        }
+        
+        return google_calendar_service.create_event(calendar_id, event_data)
+
+    @classmethod
+    def sync_appointment_update(cls, db: Session, appointment: Appointment) -> bool:
+        """
+        Update existing Google Calendar event.
+        
+        Args:
+            db: Database session
+            appointment: The appointment with updated data
+            
+        Returns:
+            True if successful
+        """
+        if not appointment.google_event_id:
+            # If no ID, maybe try creating it? For now, skip
+            return False
+            
+        calendar_id = SettingsService.get_setting(db, "google_calendar_id", "primary")
+        
+        # Basic update logic - re-construct data
+        # Ideally we would refactor data construction to a shared method
+        
+        # Need to re-fetch client/service if lazy loaded or ensure they are available
+        # Assuming eager load or session is active
+        
+        status_prefix = ""
+        if appointment.status == "cancelled":
+            status_prefix = "[CANCELADO] "
+        elif appointment.status == "confirmed":
+            status_prefix = "✅ "
+            
+        summary = f"{status_prefix}{appointment.client.name} - {appointment.service.name}"
+         
+        event_data = {
+            'summary': summary,
+            'start': {
+                'dateTime': appointment.start_time.isoformat(),
+            },
+            'end': {
+                'dateTime': appointment.end_time.isoformat(),
+            },
+        }
+        
+        return google_calendar_service.update_event(calendar_id, appointment.google_event_id, event_data)
+
+    @classmethod
+    def sync_appointment_delete(cls, db: Session, google_event_id: str) -> bool:
+        """
+        Delete event from Google Calendar.
+        
+        Args:
+            db: Database session
+            google_event_id: The ID of the event to delete
+            
+        Returns:
+            True if successful
+        """
+        calendar_id = SettingsService.get_setting(db, "google_calendar_id", "primary")
+        return google_calendar_service.delete_event(calendar_id, google_event_id)
     
     @classmethod
     def get_daily_schedule(
@@ -371,7 +469,8 @@ class AppointmentService:
                             "id": appt.id,
                             "start_time": appt.start_time,
                             "end_time": appt.end_time,
-                            "status": appt.status
+                            "status": appt.status,
+                            "google_event_id": appt.google_event_id # Include this for UI
                         },
                         "client": {
                             "id": appt.client.id,
@@ -402,4 +501,3 @@ class AppointmentService:
                 })
         
         return schedule
-

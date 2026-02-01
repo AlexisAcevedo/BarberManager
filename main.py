@@ -17,6 +17,7 @@ from views.services_view import create_services_view
 from views.settings_view import create_settings_view
 from views.login_view import create_login_view
 from views.change_password_view import create_change_password_view
+from views.calendar_settings_view import create_calendar_settings_view
 
 async def main(page: ft.Page):
     """
@@ -45,13 +46,13 @@ async def main(page: ft.Page):
 
     async def navigate_to_index(index: int):
         """Navega a la ruta correspondiente según el índice del menú."""
-        routes = ["/", "/clients", "/barbers", "/reports", "/services", "/settings"]
+        routes = ["/", "/clients", "/barbers", "/reports", "/services", "/calendar_settings", "/settings"]
         if 0 <= index < len(routes):
             await page.push_route(routes[index])
 
     def get_selected_index(route: str) -> int:
         """Obtiene el índice del menú según la ruta actual."""
-        route_map = {"/": 0, "/clients": 1, "/barbers": 2, "/reports": 3, "/services": 4, "/settings": 5}
+        route_map = {"/": 0, "/clients": 1, "/barbers": 2, "/reports": 3, "/services": 4, "/calendar_settings": 5, "/settings": 6}
         base_route = route.split("?")[0]
         return route_map.get(base_route, 0)
 
@@ -150,6 +151,8 @@ async def main(page: ft.Page):
                 content_area.content = create_reports_view(page)
             elif route == "/services":
                 content_area.content = create_services_view(page)
+            elif route == "/calendar_settings":
+                content_area.content = create_calendar_settings_view(page)
             elif route == "/settings":
                 content_area.content = create_settings_view(page)
             else:

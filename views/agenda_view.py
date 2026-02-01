@@ -434,6 +434,12 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                                 icon_color=ft.Colors.RED_400,
                                 tooltip="Eliminar Turno",
                                 on_click=lambda e, aid=appt["id"], cname=client["name"]: confirm_delete_appointment(aid, cname)
+                            ),
+                            ft.Icon(
+                                ft.Icons.CLOUD_DONE if appt.get("google_event_id") else ft.Icons.CLOUD_OFF,
+                                color=ft.Colors.BLUE_200 if appt.get("google_event_id") else ft.Colors.GREY_600,
+                                size=16,
+                                tooltip="Sincronizado con Google Calendar" if appt.get("google_event_id") else "No sincronizado"
                             )
                         ],
                         spacing=0

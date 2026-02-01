@@ -65,6 +65,12 @@
 - **Componentes reutilizables** (cards, time slots)
 - **Feedback visual** con snackbars y diálogos
 
+### 📅 Integración Google Calendar
+- **Sincronización bidireccional** (App -> Google)
+- **Estados de sincronización** visibles en agenda
+- **Autenticación OAuth 2.0** segura
+- **Configuración flexible** (elegir calendario destino)
+
 ---
 
 ## 🚀 Instalación
@@ -126,6 +132,12 @@ DATABASE_URL=sqlite:///barber_manager.db
 # Opcional: Debugging
 DEBUG=false
 ECHO_SQL=false
+
+# Google Calendar (Requerido para sincronización)
+GOOGLE_CALENDAR_ENABLED=true
+GOOGLE_CALENDAR_ID=primary
+GOOGLE_CREDENTIALS_FILE=credentials.json
+GOOGLE_TOKEN_FILE=token.json
 ```
 
 > ⚠️ **IMPORTANTE**: `ADMIN_PASSWORD` es obligatoria. La aplicación no arrancará sin ella por seguridad.
@@ -158,9 +170,10 @@ La aplicación cuenta con un **sidebar izquierdo** con las siguientes secciones:
 | 📅 **Agenda** | Vista principal con calendario semanal, filtrado por barbero, lista de turnos del día |
 | 👥 **Clientes** | Gestión completa de clientes: agregar, editar, eliminar, buscar |
 | 💇 **Barberos** | Administración de personal: CRUD, colores de identificación, activación |
-| 📊 **Reportes** | Estadísticas, arqueo de caja, desempeño por barbero |
+| 📊 **Reportes** | Estadísticas, arqueo de caja, desempeño |
 | 💈 **Servicios** | Catálogo de servicios: gestión de nombre, duración y precio |
-| ⚙️ **Configuración** | Horarios de atención, parámetros del sistema |
+| ⚙️ **Configuración** | Horarios de atención y parámetros |
+| 🗓️ **Google Cal** | Gestión de conexión con Google Calendar |
 
 ### Flujo Básico de Trabajo
 
@@ -372,6 +385,8 @@ pytest -v
 | `WINDOW_WIDTH` | Opcional | `1280` | Ancho de ventana en píxeles |
 | `WINDOW_HEIGHT` | Opcional | `780` | Alto de ventana en píxeles |
 | `LOG_FILE` | Opcional | - | Ruta a archivo de log (si se desea persistir) |
+| `GOOGLE_CALENDAR_ENABLED` | Opcional | `false` | Habilitar/deshabilitar integración |
+| `GOOGLE_CREDENTIALS_FILE` | Requerido (si enabled) | `credentials.json` | Ruta al archivo de credenciales GCP |
 
 ### Configuración de Negocio
 
@@ -490,7 +505,7 @@ python main.py
 
 ### Funcionalidades Futuras
 
-- [ ] **Sincronización con Google Calendar** (actualmente stub)
+- [x] **Sincronización con Google Calendar**
 - [ ] **API de WhatsApp Business** para envío automático de recordatorios
 - [ ] **Reportes avanzados PDF** exportables
 - [ ] **Multi-sede**: soporte para múltiples barberías
