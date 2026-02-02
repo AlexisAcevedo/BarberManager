@@ -501,3 +501,51 @@ class AppointmentService:
                 })
         
         return schedule
+
+    @classmethod
+    def sync_pending_appointments(cls, db: Session) -> Tuple[int, int]:
+        """
+        Sync all future appointments that have not been synced yet.
+        
+        Args:
+            db: Database session
+            
+        Returns:
+            Tuple of (success_count, fail_count)
+        """
+        if not cls._is_sync_enabled(db):
+            return 0, 0
+            
+        # Find future appointments without google_event_id
+        now = datetime.now()
+        pending_appointments = db.query(Appointment).filter(
+            Appointment.start_time > now,
+            Appointment.google_event_id.is_(None),
+            Appointment.status != 'cancelled'
+        ).all()
+        
+        success_count = 0
+        fail_count = 0
+        
+        for appt in pending_appointments:
+            try:
+                # Ensure relationships are loaded
+                client = appt.client
+                service = appt.service
+                
+                google_event_id = cls.sync_to_google(db, appt, client, service)
+                if google_event_id:
+                    appt.google_event_id = google_event_id
+                    success_count += 1
+                else:
+                    fail_count += 1
+            except Exception as e:
+                print(f"Error syncing appointment {appt.id}: {e}")
+                fail_count += 1
+                
+        # Commit batch updates
+        if success_count > 0:
+            db.commit()
+            
+        return success_count, fail_count
+

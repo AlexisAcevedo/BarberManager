@@ -70,11 +70,7 @@ def create_sidebar(
                 selected_icon=ft.Icons.CUT,
                 label="Servicios",
             ),
-            ft.NavigationRailDestination(
-                icon=ft.Icons.CALENDAR_TODAY_OUTLINED,
-                selected_icon=ft.Icons.CALENDAR_TODAY,
-                label="Google Cal",
-            ),
+
             ft.NavigationRailDestination(
                 icon=ft.Icons.SETTINGS_OUTLINED,
                 selected_icon=ft.Icons.SETTINGS,

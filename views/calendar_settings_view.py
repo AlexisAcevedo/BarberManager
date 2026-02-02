@@ -1,7 +1,4 @@
-"""
-Vista de configuración de Google Calendar.
-Permite conectar con Google Calendar y gestionar la sincronización.
-"""
+import os
 import flet as ft
 import threading
 from typing import Optional
@@ -9,6 +6,7 @@ from typing import Optional
 from database import get_db
 from services.google_calendar_service import GoogleCalendarService
 from services.settings_service import SettingsService
+from services.appointment_service import AppointmentService
 
 class CalendarSettingsView(ft.Container):
     def __init__(self, page: ft.Page):
@@ -21,6 +19,7 @@ class CalendarSettingsView(ft.Container):
         self.status_icon = ft.Ref[ft.Icon]()
         self.status_text = ft.Ref[ft.Text]()
         self.connect_btn = ft.Ref[ft.ElevatedButton]()
+        self.disconnect_btn = ft.Ref[ft.ElevatedButton]()
         self.enable_switch = ft.Ref[ft.Switch]()
         self.manual_sync_btn = ft.Ref[ft.ElevatedButton]()
         self.calendar_dropdown = ft.Ref[ft.Dropdown]()
@@ -46,8 +45,8 @@ class CalendarSettingsView(ft.Container):
             self.status_icon.current.color = ft.Colors.GREEN
             self.status_text.current.value = "Conectado a Google Calendar"
             self.status_text.current.color = ft.Colors.GREEN
-            self.connect_btn.current.text = "Re-conectar"
-            self.connect_btn.current.visible = True
+            self.connect_btn.current.visible = False
+            self.disconnect_btn.current.visible = True
             
             # Enable controls
             self.enable_switch.current.disabled = False
@@ -67,7 +66,8 @@ class CalendarSettingsView(ft.Container):
             self.status_icon.current.color = ft.Colors.GREY
             self.status_text.current.value = "No conectado"
             self.status_text.current.color = ft.Colors.GREY
-            self.connect_btn.current.text = "Conectar con Google Calendar"
+            self.connect_btn.current.visible = True
+            self.disconnect_btn.current.visible = False
             
             # Disable controls
             self.enable_switch.current.disabled = True
@@ -125,8 +125,6 @@ class CalendarSettingsView(ft.Container):
         self.is_connecting = False
         
         # Schedule UI update on main thread
-        # In Flet we can just call update() from thread usually, but safer to just update
-        # check_status handles UI update
         self.check_status() 
         
         if not success:
@@ -138,6 +136,28 @@ class CalendarSettingsView(ft.Container):
              self.main_page.snack_bar = ft.SnackBar(ft.Text("¡Conectado exitosamente!"), bgcolor=ft.Colors.GREEN)
              self.main_page.snack_bar.open = True
              self.main_page.update()
+
+    def disconnect_click(self, e):
+        """Handle disconnect button click."""
+        # Disable sync
+        with get_db() as db:
+            SettingsService.set_google_calendar_enabled(db, False)
+        
+        # Remove token file
+        if os.path.exists('token.json'):
+            try:
+                os.remove('token.json')
+            except Exception as ex:
+                print(f"Error removing token: {ex}")
+        
+        # Reset internal service state
+        self.google_service.creds = None
+        self.google_service.service = None
+        
+        self.check_status()
+        self.main_page.snack_bar = ft.SnackBar(ft.Text("Desconectado de Google Calendar"), bgcolor=ft.Colors.BLUE)
+        self.main_page.snack_bar.open = True
+        self.main_page.update()
 
     def toggle_sync(self, e):
         """Toggle sync enable/disable."""
@@ -159,10 +179,32 @@ class CalendarSettingsView(ft.Container):
 
     def manual_sync_click(self, e):
         """Trigger manual sync."""
-        self.main_page.snack_bar = ft.SnackBar(ft.Text("Sincronización manual iniciada... (Implementación pendiente)"), bgcolor=ft.Colors.BLUE)
-        self.main_page.snack_bar.open = True
-        self.main_page.update()
-        # TODO: Implement bulk sync in AppointmentService
+        self.manual_sync_btn.current.disabled = True
+        self.loading_ring.current.visible = True
+        self.update()
+        
+        def _run_sync():
+            try:
+                with get_db() as db:
+                    success, fail = AppointmentService.sync_pending_appointments(db)
+                
+                msg = f"Sincronización completada. Exitosos: {success}, Fallidos: {fail}"
+                color = ft.Colors.GREEN if fail == 0 else ft.Colors.ORANGE
+                
+                self.main_page.snack_bar = ft.SnackBar(ft.Text(msg), bgcolor=color)
+                self.main_page.snack_bar.open = True
+                self.main_page.update()
+                
+            except Exception as ex:
+                self.main_page.snack_bar = ft.SnackBar(ft.Text(f"Error en sincronización: {ex}"), bgcolor=ft.Colors.RED)
+                self.main_page.snack_bar.open = True
+                self.main_page.update()
+            finally:
+                self.manual_sync_btn.current.disabled = False
+                self.loading_ring.current.visible = False
+                self.update()
+                
+        threading.Thread(target=_run_sync, daemon=True).start()
 
     def _build_ui(self):
         return ft.Column(
@@ -185,6 +227,14 @@ class CalendarSettingsView(ft.Container):
                             icon=ft.Icons.LOGIN,
                             on_click=self.connect_click,
                             ref=self.connect_btn
+                        ),
+                        ft.ElevatedButton(
+                            "Desconectar", 
+                            icon=ft.Icons.LOGOUT,
+                            color=ft.Colors.RED,
+                            on_click=self.disconnect_click,
+                            ref=self.disconnect_btn,
+                            visible=False
                         )
                     ]),
                     padding=20,
@@ -225,17 +275,17 @@ class CalendarSettingsView(ft.Container):
                 ft.Text("Acciones", size=18, weight=ft.FontWeight.BOLD),
                 ft.Row([
                     ft.ElevatedButton(
-                        "Sincronizar Todo Ahora",
+                        "Sincronizar Turnos Pendientes",
                         icon=ft.Icons.SYNC,
                         on_click=self.manual_sync_click,
                         ref=self.manual_sync_btn,
                         disabled=True
                     ),
-                    # ft.OutlinedButton("Desconectar", icon=ft.Icons.LOGOUT, color=ft.Colors.RED) # TODO
                 ])
             ],
-            scroll=ft.ScrollMode.AUTO,
-            expand=True
+
+            # scroll=ft.ScrollMode.AUTO, # Removed to allow embedding
+            # expand=True # Removed to allow embedding
         )
 
 def create_calendar_settings_view(page: ft.Page):

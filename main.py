@@ -46,13 +46,13 @@ async def main(page: ft.Page):
 
     async def navigate_to_index(index: int):
         """Navega a la ruta correspondiente según el índice del menú."""
-        routes = ["/", "/clients", "/barbers", "/reports", "/services", "/calendar_settings", "/settings"]
+        routes = ["/", "/clients", "/barbers", "/reports", "/services", "/settings"]
         if 0 <= index < len(routes):
             await page.push_route(routes[index])
 
     def get_selected_index(route: str) -> int:
         """Obtiene el índice del menú según la ruta actual."""
-        route_map = {"/": 0, "/clients": 1, "/barbers": 2, "/reports": 3, "/services": 4, "/calendar_settings": 5, "/settings": 6}
+        route_map = {"/": 0, "/clients": 1, "/barbers": 2, "/reports": 3, "/services": 4, "/settings": 5}
         base_route = route.split("?")[0]
         return route_map.get(base_route, 0)
 

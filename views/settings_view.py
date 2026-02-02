@@ -180,20 +180,9 @@ def create_settings_view(page: ft.Page) -> ft.Control:
             ),
             ft.Container(height=20),
             
-            build_section(
-                "Google Calendar", "Sincronización con Google Calendar",
-                [
-                    ft.Row(controls=[ft.Icon(ft.Icons.CLOUD_OFF, color=ft.Colors.ORANGE_400), ft.Text("No conectado", color=ft.Colors.ORANGE_400)], spacing=10),
-                    ft.ElevatedButton(
-                        content=ft.Text("Conectar Google Calendar"),
-                        icon=ft.Icons.LINK,
-                            
-                        disabled=True,
-                        tooltip="Próximamente"
-                    ),
-                    ft.Text("La integración con Google Calendar estará disponible próximamente", size=12, color=AppTheme.TEXT_SECONDARY, italic=True)
-                ]
-            ),
+            # Google Calendar Section (Functional)
+            create_functional_calendar_view(page),
+
             ft.Container(height=20),
             
             build_section(
@@ -223,3 +212,25 @@ def create_settings_view(page: ft.Page) -> ft.Control:
         expand=True,
         scroll=ft.ScrollMode.AUTO
     )
+
+def create_functional_calendar_view(page):
+    """Helper to instantiate and configure the calendar view for embedding."""
+    from views.calendar_settings_view import CalendarSettingsView
+    view = CalendarSettingsView(page)
+    # Adjust for embedding
+    view.expand = False 
+    view.padding = 0  # Remove container padding to align with other sections if needed, or keep it.
+    # Actually, CalendarSettingsView has a big title. We might want to keep it or wrap it in a card.
+    # For now, simply returning it is the safest "functional" replacement.
+    # However, to match the look of 'build_section', we might want to wrap it or modify it.
+    # But CalendarSettingsView is complex (status, switch, button).
+    # Since the user asked to make it functional "in the configuration section", embedding the full view is acceptable.
+    view.bgcolor = ft.Colors.with_opacity(0.05, ft.Colors.WHITE)
+    view.border_radius = 10
+    view.padding = 20
+    from utils.theme import AppTheme # ensure theme availability if needed inside
+    
+    # We might want to suppress the internal title of CalendarSettingsView if we want it to look like a section
+    # but we can't easily reach inside without modifying the class. 
+    # Let's trust the component design.
+    return view
