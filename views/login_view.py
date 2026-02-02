@@ -84,23 +84,76 @@ def create_login_view(page: ft.Page, on_login_success) -> ft.Control:
     )
 
     return ft.Container(
-        content=ft.Column(
+        content=ft.Row(
             controls=[
-                ft.Icon(ft.Icons.CONTENT_CUT, size=80, color=AppTheme.PRIMARY),
-                ft.Text("Barber Manager Pro", size=32, weight=ft.FontWeight.BOLD, color=AppTheme.TEXT_PRIMARY),
-                ft.Text("Identifícate para continuar", color=AppTheme.TEXT_SECONDARY),
-                ft.Container(height=20),
-                username_field,
-                password_field,
-                error_text,
-                ft.Container(height=10),
-                login_button
+                # Tarjeta de Login Glassmorphism
+                ft.Container(
+                    content=ft.Column(
+                        controls=[
+                            # Header
+                            ft.Container(
+                                content=ft.Icon(
+                                    ft.Icons.CONTENT_CUT, 
+                                    size=60, 
+                                    color=AppTheme.ACCENT
+                                ),
+                                padding=20,
+                                bgcolor=ft.Colors.with_opacity(0.1, AppTheme.ACCENT),
+                                border_radius=50,
+                                alignment=ft.Alignment(0, 0)
+                            ),
+                            ft.Container(height=10),
+                            ft.Text(
+                                "BARBER MANAGER", 
+                                size=24, 
+                                weight=ft.FontWeight.BOLD, 
+                                color=AppTheme.TEXT_PRIMARY,
+                                font_family=AppTheme.FONT_HEADING,
+                                text_align=ft.TextAlign.CENTER
+                            ),
+                            ft.Text(
+                                "PRO EDITION", 
+                                size=12, 
+                                color=AppTheme.PRIMARY, 
+                                weight=ft.FontWeight.BOLD,
+                                text_align=ft.TextAlign.CENTER
+                            ),
+                            ft.Container(height=30),
+                            
+                            # Campos
+                            ft.Text("Bienvenido de nuevo", color=AppTheme.TEXT_SECONDARY, size=14),
+                            ft.Container(height=10),
+                            username_field,
+                            ft.Container(height=10),
+                            password_field,
+                            
+                            ft.Container(height=20),
+                            error_text,
+                            ft.Container(height=10),
+                            
+                            login_button,
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=5
+                    ),
+                    width=400,
+                    padding=40,
+                    bgcolor=AppTheme.GLASS_LOW,
+                    border_radius=20,
+                    border=ft.border.all(1, AppTheme.BORDER_DEFAULT),
+                    blur=ft.Blur(20, 20, ft.BlurTileMode.MIRROR),
+                    shadow=ft.BoxShadow(
+                        spread_radius=0,
+                        blur_radius=50,
+                        color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
+                        offset=ft.Offset(0, 20),
+                    )
+                )
             ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=10
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER
         ),
         alignment=ft.Alignment(0, 0),
         expand=True,
-        padding=40,
-        bgcolor=AppTheme.BACKGROUND
+        bgcolor=AppTheme.BACKGROUND # Color base
     )

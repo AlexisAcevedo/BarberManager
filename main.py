@@ -27,11 +27,14 @@ async def main(page: ft.Page):
     # Inicializar base de datos
     init_db()
     
+    from utils.theme import AppTheme
+
     # Configuración de la página
     page.title = "Barber Manager Pro"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "#0a0a0f"
+    page.bgcolor = AppTheme.BACKGROUND
     page.padding = 0
+    page.theme = AppTheme.get_theme()
     
     # Configuración de ventana
     page.window.width = 1280

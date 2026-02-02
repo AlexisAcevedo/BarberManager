@@ -448,10 +448,12 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                 ],
                 alignment=ft.MainAxisAlignment.START
             ),
-            padding=10,
-            border_radius=8,
-            bgcolor=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
-            border=ft.border.only(left=ft.border.BorderSide(4, barber_color))
+
+            padding=15,
+            border_radius=12,
+            bgcolor=AppTheme.GLASS_LOW,
+            border=ft.border.only(left=ft.border.BorderSide(4, barber_color)),
+            shadow=ft.BoxShadow(blur_radius=5, color=ft.Colors.with_opacity(0.05, ft.Colors.BLACK)) # Sutil sombra
         )
     
     def build_free_slot_card(slot: dict) -> ft.Control:
@@ -472,7 +474,7 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                     ft.Container(
                         width=3,
                         height=30,
-                        bgcolor=ft.Colors.GREY_700,
+                        bgcolor=ft.Colors.GREY_800,
                         border_radius=2
                     ),
                     ft.Text(
@@ -483,15 +485,16 @@ def create_agenda_view(page: ft.Page) -> ft.Control:
                         expand=True
                     ),
                     ft.Icon(
-                        ft.Icons.ADD,
+                        ft.Icons.ADD_CIRCLE_OUTLINE,
                         color=AppTheme.PRIMARY,
                         size=20
                     )
                 ]
             ),
-            padding=10,
-            border_radius=8,
-            bgcolor=ft.Colors.with_opacity(0.05, AppTheme.PRIMARY),
+            padding=12,
+            border_radius=12,
+            bgcolor=AppTheme.GLASS_LOW,
+            border=ft.border.all(1, AppTheme.BORDER_DEFAULT), # Borde sutil
             on_click=lambda e, t=slot["time"]: new_appointment_at_time(t),
             ink=True
         )
