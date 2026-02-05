@@ -79,5 +79,4 @@ alembic/versions/__pycache__/
 .flet/
 .flet_*
 
-# Antigravity / Gemini
-.agent/
+
